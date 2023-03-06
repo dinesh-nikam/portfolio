@@ -1,4 +1,4 @@
-/* loading animation */
+/* loading animation
 .center-body {
 	display: flex;
 	justify-content: center;
@@ -73,7 +73,7 @@ body {
 		transform: rotateX(35deg) rotateY(55deg) rotateZ(1turn);
 	}
 }
-/* end animation */
+ end animation */
 
 
 /* fonts */
