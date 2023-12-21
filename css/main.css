@@ -3,20 +3,20 @@ html {
   }
 body{
     overflow-x: hidden;
-    background-color: #4B0082;
+    background-color: #d99bc0;
     /* object-fit: cover; */
     /* background-image: url("images/portfolio.jpg"); */
 }
 nav{
-    background-color: #4B0082;
+    background-color: #bf407c;
     color:#fff;
 }
 #about{
-    background-color: #4B0082;
+    background-color: #76a972;
 }
 
 #resume:hover{
-  background-color: #4B0082;
+  background-color: #f4993a;
   text-emphasis-color: white;
 }
 .typing-demo {
