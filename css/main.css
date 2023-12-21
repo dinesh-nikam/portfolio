@@ -8,15 +8,15 @@ body{
     /* background-image: url("images/portfolio.jpg"); */
 }
 nav{
-    background-color: #041E13;
+    background-color: #4B0082;
     color:#fff;
 }
 #about{
-    background-color: #a3c8ae;
+    background-color: #4B0082;
 }
 
 #resume:hover{
-  background-color: #041E13;
+  background-color: #4B0082;
   text-emphasis-color: white;
 }
 .typing-demo {
