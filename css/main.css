@@ -3,20 +3,23 @@ html {
   }
 body{
     overflow-x: hidden;
-    background-color: #d99bc0;
+    background-color:#F5F5F5 ;
+    color:#333333;
+
     /* object-fit: cover; */
     /* background-image: url("images/portfolio.jpg"); */
 }
 nav{
-    background-color: #bf407c;
-    color:#fff;
+    background-color: #008080 ;
+    color:#FFFFFF;
 }
 #about{
-    background-color: #76a972;
+    background-color: #ECF0F1;
+    color:#333333;
 }
 
 #resume:hover{
-  background-color: #f4993a;
+  background-color: #3f51b5;
   text-emphasis-color: white;
 }
 .typing-demo {
@@ -96,7 +99,7 @@ a{
     height: 2px;
     bottom: 0;
     left: 0;
-    background-color: #B8C097;
+    background-color: #009999;
     transform-origin: bottom right;
     transition: transform 0.25s ease-out;
   }
@@ -153,11 +156,7 @@ h1 {
     box-shadow: 0 3px 5px 5px rgb(0 0 0 / 12%), 0 3px 5px rgb(0 0 0 / 24%);
   }
   
-  /* footer {
-    position: absolute;
-    width: 100%;
-    bottom: 0;
-  } */
+   
   
   ul {
     margin: 0;
@@ -169,7 +168,7 @@ h1 {
   }
   
   #contact a {
-    color: #B8C097;
+    color: #b92dcc;
     margin: 10px;
   }
   
@@ -180,7 +179,7 @@ h1 {
     justify-content: center;
     align-items: center;
     height: 200px;
-    background-color: #041E13;
+    background-color:  #2C3E50;
   }
   
   #icon {
