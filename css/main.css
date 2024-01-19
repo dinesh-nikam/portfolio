@@ -6,16 +6,18 @@ body{
     background-color:#F5F5F5 ;
     color:#333333;
 
-    /* object-fit: cover; */
-    /* background-image: url("images/portfolio.jpg"); */
+    object-fit: cover;
+    background-image: url("/images/bg1.jpg"); 
 }
 nav{
     background-color: #008080 ;
     color:#FFFFFF;
+
 }
 #about{
     background-color: #ECF0F1;
     color:#333333;
+    
 }
 
 #resume:hover{

@@ -27,7 +27,9 @@ body{
     line-height: 1.5;
     overflow-x: hidden;
     background-color: var(--bg-black-50);
-}
+    
+ }
+
 *{
     margin: 0;
     padding: 0;
