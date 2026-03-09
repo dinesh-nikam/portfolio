@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Visitor {
+  id              String   @id @default(uuid())
+  firstVisitAt    DateTime @default(now())
+  lastVisitAt     DateTime @default(now())
+  totalSessions   Int      @default(0)
+  totalTimeSpent  Int      @default(0)
+  browser         String?
+  os              String?
+  deviceType      String?
+  country         String?
+  city            String?
+  ipAddress       String? 
+
+  sessions        Session[]
+  pageViews       PageView[]
+  events          Event[]
+  contactMessages ContactMessage[]
+}
+
+model Session {
+  id         String    @id @default(uuid())
+  visitorId  String
+  startedAt  DateTime  @default(now())
+  endedAt    DateTime?
+  duration   Int       @default(0)
+  referer    String?
+
+  visitor    Visitor   @relation(fields: [visitorId], references: [id], onDelete: Cascade)
+  pageViews  PageView[]
+  events     Event[]
+}
+
+model PageView {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  pathname  String
+  referer   String?
+  timeSpent Int      @default(0)
+
+  sessionId String
+  visitorId String
+
+  session   Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  visitor   Visitor  @relation(fields: [visitorId], references: [id], onDelete: Cascade)
+}
+
+model Event {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  eventName String
+  eventData Json?
+
+  sessionId String
+  visitorId String
+
+  session   Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  visitor   Visitor  @relation(fields: [visitorId], references: [id], onDelete: Cascade)
+}
+
+model ContactMessage {
+  id         String   @id @default(uuid())
+  createdAt  DateTime @default(now())
+  name       String
+  email      String
+  message    String
+  isRead     Boolean  @default(false)
+  isStarred  Boolean  @default(false)
+  isArchived Boolean  @default(false)
+
+  visitorId  String?
+  visitor    Visitor? @relation(fields: [visitorId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([isRead])
+}
