@@ -50,9 +50,9 @@ export function ContactSection() {
                     <p>© {new Date().getFullYear()} Dinesh Nikam. All rights reserved.</p>
 
                     <div className="flex items-center gap-6">
-                        <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground hover-underline transition-colors pb-1">Github</a>
-                        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground hover-underline transition-colors pb-1">LinkedIn</a>
-                        <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground hover-underline transition-colors pb-1">Twitter</a>
+                        <a href="https://github.com/dinesh-nikam" target="_blank" rel="noopener noreferrer" className="hover:text-foreground hover-underline transition-colors pb-1">Github</a>
+                        <a href="https://linkedin.com/in/dinesh-nikam3/" target="_blank" rel="noopener noreferrer" className="hover:text-foreground hover-underline transition-colors pb-1">LinkedIn</a>
+                        <a href="https://twitter.com/dinesh_nikam3" target="_blank" rel="noopener noreferrer" className="hover:text-foreground hover-underline transition-colors pb-1">Twitter</a>
                     </div>
                 </div>
 

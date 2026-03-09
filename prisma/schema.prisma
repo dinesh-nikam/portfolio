@@ -83,3 +83,23 @@ model ContactMessage {
   @@index([createdAt])
   @@index([isRead])
 }
+
+model Article {
+  id          String    @id @default(uuid())
+  title       String
+  slug        String    @unique
+  excerpt     String
+  content     String
+  category    String
+  readingTime Int       @default(0)
+  featured    Boolean   @default(false)
+  status      String    @default("DRAFT")
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  views       Int       @default(0)
+
+  @@index([slug])
+  @@index([status])
+  @@index([category])
+}

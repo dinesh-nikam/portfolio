@@ -5,11 +5,11 @@ import { Github, Twitter, Linkedin, Dribbble, Instagram } from "lucide-react";
 
 export function SocialLinks() {
     const socialLinks = [
-        { name: "GitHub", icon: Github, href: "https://github.com", color: "hover:text-white hover:bg-white/10 hover:border-white/30" },
-        { name: "LinkedIn", icon: Linkedin, href: "https://linkedin.com", color: "hover:text-blue-500 hover:bg-blue-500/10 hover:border-blue-500/30" },
-        { name: "Twitter", icon: Twitter, href: "https://twitter.com", color: "hover:text-white hover:bg-white/10 hover:border-white/30" },
+        { name: "GitHub", icon: Github, href: "https://github.com/dinesh-nikam", color: "hover:text-white hover:bg-white/10 hover:border-white/30" },
+        { name: "LinkedIn", icon: Linkedin, href: "https://linkedin.com/in/dinesh-nikam3/", color: "hover:text-blue-500 hover:bg-blue-500/10 hover:border-blue-500/30" },
+        { name: "Twitter", icon: Twitter, href: "https://twitter.com/dinesh_nikam3", color: "hover:text-white hover:bg-white/10 hover:border-white/30" },
         { name: "Dribbble", icon: Dribbble, href: "https://dribbble.com", color: "hover:text-white hover:bg-white/10 hover:border-white/30" },
-        { name: "Instagram", icon: Instagram, href: "https://instagram.com", color: "hover:text-white hover:bg-white/10 hover:border-white/30" },
+        { name: "Instagram", icon: Instagram, href: "https://instagram.com/dinesh", color: "hover:text-white hover:bg-white/10 hover:border-white/30" },
     ];
 
     const containerVariants: Variants = {

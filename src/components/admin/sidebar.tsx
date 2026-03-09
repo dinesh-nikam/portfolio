@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { LayoutDashboard, Users, UserCheck, Inbox, LogOut, BarChart3, Presentation } from "lucide-react";
+import { LayoutDashboard, Users, UserCheck, Inbox, LogOut, BarChart3, Presentation, PenTool } from "lucide-react";
 
 export function AdminSidebar() {
     const pathname = usePathname();
@@ -14,6 +14,7 @@ export function AdminSidebar() {
         { name: "Analytics", path: "/admin/analytics", icon: BarChart3 },
         { name: "Visitors", path: "/admin/visitors", icon: Users },
         { name: "Hot Leads", path: "/admin/leads", icon: UserCheck },
+        { name: "Writing", path: "/admin/writing", icon: PenTool },
         { name: "Projects", path: "/admin/projects", icon: Presentation },
         { name: "Inbox", path: "/admin/messages", icon: Inbox },
     ];

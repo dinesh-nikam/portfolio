@@ -53,6 +53,7 @@ export function NavigationBar() {
         { name: "Work", href: "/#projects" },
         { name: "Skills", href: "/#skills" },
         { name: "Experience", href: "/#experience" },
+        { name: "Writing", href: "/writing" },
         { name: "Resume", href: "/resume" },
         { name: "Contact", href: "/contactme" },
     ];
@@ -85,6 +86,9 @@ export function NavigationBar() {
 
     // Helper to determine if link is active
     const isActive = (href: string) => {
+        if (href === "/writing") {
+            return pathname.startsWith("/writing");
+        }
         if (href === "/resume") {
             return pathname === "/resume";
         }
