@@ -48,9 +48,20 @@ export function NavigationBar() {
         return () => window.removeEventListener("scroll", handleScroll);
     }, [pathname]);
 
+    useEffect(() => {
+        if (mobileMenuOpen) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "unset";
+        }
+        return () => {
+            document.body.style.overflow = "unset";
+        };
+    }, [mobileMenuOpen]);
+
     const navLinks = [
         { name: "Home", href: "/" },
-        { name: "Work", href: "/#projects" },
+        { name: "Work", href: "/#work" },
         { name: "Skills", href: "/#skills" },
         { name: "Experience", href: "/#experience" },
         { name: "Writing", href: "/writing" },
@@ -113,14 +124,14 @@ export function NavigationBar() {
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled ? "py-4 bg-background/80 backdrop-blur-lg border-b border-border shadow-sm" : "py-8 bg-transparent"
                 }`}
         >
-            <nav className="container mx-auto px-6 md:px-12 flex items-center justify-between">
+            <nav aria-label="Main Navigation" className="container mx-auto px-6 md:px-12 flex items-center justify-between">
                 {/* Logo / Name */}
                 <Link href="/" onClick={(e) => handleNavigation(e, "/")} className="group relative z-10">
                     <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70 group-hover:from-blue-400 group-hover:to-blue-500 transition-all duration-300">DN.</span>
                 </Link>
 
                 {/* Desktop Nav */}
-                <div className="hidden md:flex items-center gap-1 bg-white/5 backdrop-blur-md border border-white/10 p-1.5 rounded-full px-4">
+                <div className="hidden md:flex items-center gap-1 bg-foreground/5 backdrop-blur-md border border-foreground/10 p-1.5 rounded-full px-4">
                     {navLinks.map((link) => {
                         const active = isActive(link.href);
                         return (
@@ -128,13 +139,13 @@ export function NavigationBar() {
                                 key={link.name}
                                 href={link.href}
                                 onClick={(e) => handleNavigation(e, link.href)}
-                                className={`relative px-4 py-2 text-sm font-medium transition-colors duration-300 z-10 ${active ? "text-white" : "text-muted-foreground hover:text-foreground"
+                                className={`relative px-4 py-2 text-sm font-medium transition-colors duration-300 z-10 ${active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
                                     }`}
                             >
                                 {active && (
                                     <motion.div
                                         layoutId="active-nav"
-                                        className="absolute inset-0 bg-white/10 rounded-full -z-10"
+                                        className="absolute inset-0 bg-foreground/10 rounded-full -z-10"
                                         transition={{ type: "spring", stiffness: 380, damping: 30 }}
                                     />
                                 )}
@@ -143,13 +154,13 @@ export function NavigationBar() {
                         );
                     })}
 
-                    <div className="w-[1px] h-4 bg-white/20 mx-2" />
+                    <div className="w-[1px] h-4 bg-foreground/20 mx-2" />
 
                     {/* Theme Toggle */}
                     {mounted && (
                         <button
                             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                            className="text-muted-foreground hover:text-foreground p-2 rounded-full hover:bg-white/10 transition-colors"
+                            className="text-muted-foreground hover:text-foreground p-2 rounded-full hover:bg-foreground/10 transition-colors"
                             aria-label="Toggle Theme"
                         >
                             {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -159,9 +170,11 @@ export function NavigationBar() {
 
                 {/* Mobile Toggle */}
                 <button
-                    className="md:hidden z-50 relative p-2 text-foreground bg-white/5 border border-white/10 rounded-full"
+                    className="md:hidden z-50 relative p-2 text-foreground bg-foreground/5 border border-foreground/10 rounded-full"
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                     aria-label="Toggle Menu"
+                    aria-expanded={mobileMenuOpen}
+                    aria-controls="mobile-menu"
                 >
                     {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                 </button>
@@ -171,6 +184,10 @@ export function NavigationBar() {
             <AnimatePresence>
                 {mobileMenuOpen && (
                     <motion.div
+                        id="mobile-menu"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="Mobile Navigation"
                         initial={{ opacity: 0, scale: 0.95, y: -20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: -20 }}
@@ -202,7 +219,7 @@ export function NavigationBar() {
                                 animate={{ opacity: 1 }}
                                 transition={{ delay: 0.5 }}
                                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                                className="mt-8 flex items-center gap-3 px-6 py-3 rounded-full bg-white/5 border border-white/10 text-sm uppercase tracking-widest text-muted-foreground active:scale-95 transition-all"
+                                className="mt-8 flex items-center gap-3 px-6 py-3 rounded-full bg-foreground/5 border border-foreground/10 text-sm uppercase tracking-widest text-muted-foreground active:scale-95 transition-all"
                             >
                                 {theme === "dark" ? (
                                     <><Sun className="w-4 h-4 text-blue-500" /> Light Mode</>

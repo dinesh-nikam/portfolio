@@ -77,6 +77,23 @@ model ContactMessage {
   isStarred  Boolean  @default(false)
   isArchived Boolean  @default(false)
 
+  // Visitor Intelligence
+  ipAddress  String?
+  country    String?
+  city       String?
+  region     String?
+  latitude   Float?
+  longitude  Float?
+  browser    String?
+  os         String?
+  deviceType String?
+  
+  // Marketing Intelligence
+  referer     String?
+  utmSource   String?
+  utmCampaign String?
+  utmMedium   String?
+
   visitorId  String?
   visitor    Visitor? @relation(fields: [visitorId], references: [id], onDelete: SetNull)
 

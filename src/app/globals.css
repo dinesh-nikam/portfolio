@@ -195,3 +195,28 @@
 .btn-elegant:hover {
   @apply bg-foreground text-background scale-[0.98];
 }
+
+/* Mobile gradient fallback for tubes background */
+.tubes-mobile-fallback {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.3;
+  background: linear-gradient(
+    135deg,
+    #0a0a0a 0%,
+    #1a0a2e 25%,
+    #0a1628 50%,
+    #0a2a1a 75%,
+    #0a0a0a 100%
+  );
+  background-size: 400% 400%;
+  animation: tubes-gradient-shift 15s ease infinite;
+}
+
+@keyframes tubes-gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  25% { background-position: 100% 0%; }
+  50% { background-position: 100% 100%; }
+  75% { background-position: 0% 100%; }
+}

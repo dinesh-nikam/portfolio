@@ -9,6 +9,7 @@ import rehypePrettyCode from 'rehype-pretty-code';
 import prisma from '@/lib/prisma';
 import { mdxComponents } from '@/components/writing/mdx-components';
 import { ReadingProgress } from '@/components/writing/reading-progress';
+import { ViewTracker } from '@/components/writing/view-tracker';
 
 interface ArticlePageProps {
     params: { slug: string };
@@ -16,6 +17,27 @@ interface ArticlePageProps {
 
 // Ensure the route is dynamic or statically generated later if configured.
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
+    const article = await prisma.article.findUnique({ where: { slug } });
+
+    if (!article) {
+        return { title: 'Not Found | Dinesh Nikam' };
+    }
+
+    return {
+        title: `${article.title} | Dinesh Nikam`,
+        description: article.excerpt,
+        openGraph: {
+            title: `${article.title} | Dinesh Nikam`,
+            description: article.excerpt,
+            type: 'article',
+            publishedTime: (article.publishedAt || article.createdAt).toISOString(),
+            authors: ['Dinesh Nikam'],
+        }
+    };
+}
 
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
@@ -28,22 +50,17 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         notFound();
     }
 
-    // Increment view count directly
-    await prisma.article.update({
-        where: { slug },
-        data: { views: { increment: 1 } },
-    });
-
     return (
-        <div className="min-h-screen bg-[#050505] text-white pt-24 pb-32">
+        <div className="min-h-screen bg-background text-foreground pt-24 pb-32">
             <ReadingProgress />
+            <ViewTracker slug={slug} />
 
             <div className="max-w-3xl mx-auto px-6 md:px-12 w-full">
                 {/* Navigation */}
                 <div className="mb-12">
                     <Link
                         href="/writing"
-                        className="inline-flex items-center gap-2 text-sm font-mono text-white/40 hover:text-white transition-colors"
+                        className="inline-flex items-center gap-2 text-sm font-mono text-muted-foreground hover:text-foreground transition-colors"
                     >
                         <ArrowLeft className="w-4 h-4" />
                         Back to Writing
@@ -52,8 +69,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
                 {/* Article Header */}
                 <header className="mb-16">
-                    <div className="flex flex-wrap items-center gap-4 text-xs font-mono text-white/50 mb-8">
-                        <span className="px-3 py-1.5 rounded-full bg-white/10 text-white/80 uppercase tracking-widest text-[10px]">
+                    <div className="flex flex-wrap items-center gap-4 text-xs font-mono text-muted-foreground mb-8">
+                        <span className="px-3 py-1.5 rounded-full bg-foreground/10 text-foreground/80 uppercase tracking-widest text-[10px]">
                             {article.category}
                         </span>
                         <div className="flex items-center gap-1.5">
@@ -79,13 +96,13 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                         {article.title}
                     </h1>
 
-                    <p className="text-xl md:text-2xl text-white/50 leading-relaxed font-light">
+                    <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed font-light">
                         {article.excerpt}
                     </p>
                 </header>
 
                 {/* MDX Content Area */}
-                <article className="prose prose-invert prose-lg max-w-none">
+                <article className="prose dark:prose-invert prose-lg max-w-none">
                     <MDXRemote
                         source={article.content}
                         components={mdxComponents}
@@ -108,9 +125,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                 </article>
 
                 {/* Footer info */}
-                <div className="mt-24 pt-8 border-t border-white/10 flex items-center justify-between text-sm font-mono text-white/40">
+                <div className="mt-24 pt-8 border-t border-foreground/10 flex items-center justify-between text-sm font-mono text-muted-foreground">
                     <p>© {new Date().getFullYear()} Dinesh Nikam. All rights reserved.</p>
-                    <Link href="/writing" className="hover:text-white transition-colors">More Articles →</Link>
+                    <Link href="/writing" className="hover:text-foreground transition-colors">More Articles →</Link>
                 </div>
             </div>
         </div>

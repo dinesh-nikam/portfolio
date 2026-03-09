@@ -7,6 +7,7 @@ const ProjectsSection = dynamic(() => import("@/components/sections/projects").t
 const ServicesSection = dynamic(() => import("@/components/services/ServicesSection").then(m => m.ServicesSection));
 const SkillsSection = dynamic(() => import("@/components/skills/SkillsSection").then(m => m.SkillsSection));
 const ExperienceSection = dynamic(() => import("@/components/sections/experience").then(m => m.ExperienceSection));
+const CertificationsSection = dynamic(() => import("@/components/sections/certifications").then(m => m.CertificationsSection));
 const ContactSection = dynamic(() => import("@/components/sections/contact").then(m => m.ContactSection));
 
 export default function Home() {
@@ -20,6 +21,7 @@ export default function Home() {
         <AboutSection />
         <SkillsSection />
         <ExperienceSection />
+        <CertificationsSection />
         <ProjectsSection />
         <ServicesSection />
         <ContactSection />

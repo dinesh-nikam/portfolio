@@ -2,15 +2,27 @@ import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { UAParser } from "ua-parser-js";
 import prisma from "@/lib/prisma"; // our singleton
+import { z } from "zod";
+
+const trackSchema = z.object({
+    type: z.enum(["heartbeat", "pageview", "event"]),
+    visitorId: z.string().uuid(),
+    pathname: z.string().max(500).optional(),
+    referer: z.string().max(1000).optional().nullable(),
+    eventName: z.string().max(100).optional(),
+    eventData: z.any().optional(),
+});
 
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { type, visitorId, pathname, referer, eventName, eventData } = body;
+        const parseResult = trackSchema.safeParse(body);
 
-        if (!visitorId || typeof visitorId !== "string") {
-            return NextResponse.json({ error: "Missing visitorId" }, { status: 400 });
+        if (!parseResult.success) {
+            return NextResponse.json({ error: "Invalid payload format" }, { status: 400 });
         }
+
+        const { type, visitorId, pathname, referer, eventName, eventData } = parseResult.data;
 
         const headersList = await headers();
 
@@ -84,7 +96,7 @@ export async function POST(req: Request) {
                 data: {
                     sessionId: session.id,
                     visitorId,
-                    pathname,
+                    pathname: pathname ?? "/",
                 },
             });
 
@@ -107,8 +119,8 @@ export async function POST(req: Request) {
                 data: {
                     sessionId: session.id,
                     visitorId,
-                    eventName,
-                    eventData: eventData ? eventData : undefined,
+                    eventName: eventName ?? "unknown",
+                    eventData: eventData ?? undefined,
                 },
             });
 

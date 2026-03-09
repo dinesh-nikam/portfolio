@@ -2,22 +2,73 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Send, CheckCircle2, Loader2 } from "lucide-react";
+import { Send, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 
 export function ContactForm() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const [formData, setFormData] = useState({
+        name: "",
+        email: "",
+        project: "",
+        message: "",
+    });
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { id, value } = e.target;
+        setFormData(prev => ({ ...prev, [id]: value }));
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
-        // Simulate network request
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        setIsSubmitting(false);
-        setIsSuccess(true);
+        setError(null);
 
-        // Reset form success state after some time
-        setTimeout(() => setIsSuccess(false), 5000);
+        try {
+            let visitorId = null;
+            if (typeof window !== "undefined") {
+                visitorId = localStorage.getItem("visitor_id");
+            }
+
+            // Extract UTM params and Referrer
+            const urlParams = new URLSearchParams(window.location.search);
+            const utmSource = urlParams.get("utm_source");
+            const utmCampaign = urlParams.get("utm_campaign");
+            const utmMedium = urlParams.get("utm_medium");
+            const referer = document.referrer || window.location.href;
+
+            const response = await fetch("/api/contact", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: formData.name,
+                    email: formData.email,
+                    project: formData.project || undefined,
+                    message: formData.message,
+                    visitorId: visitorId || undefined,
+                    referer,
+                    utmSource,
+                    utmCampaign,
+                    utmMedium,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Failed to send message");
+            }
+
+            setIsSuccess(true);
+            setFormData({ name: "", email: "", project: "", message: "" });
+            setTimeout(() => setIsSuccess(false), 5000);
+        } catch (err: any) {
+            setError(err.message || "An unexpected error occurred");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -37,6 +88,8 @@ export function ContactForm() {
                             type="text"
                             required
                             id="name"
+                            value={formData.name}
+                            onChange={handleChange}
                             className="peer w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 pt-6 text-white outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all duration-300"
                             placeholder=" "
                         />
@@ -50,6 +103,8 @@ export function ContactForm() {
                             type="email"
                             required
                             id="email"
+                            value={formData.email}
+                            onChange={handleChange}
                             className="peer w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 pt-6 text-white outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all duration-300"
                             placeholder=" "
                         />
@@ -62,8 +117,9 @@ export function ContactForm() {
                 <div className="relative group/field">
                     <input
                         type="text"
-                        required
                         id="project"
+                        value={formData.project}
+                        onChange={handleChange}
                         className="peer w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 pt-6 text-white outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all duration-300"
                         placeholder=" "
                     />
@@ -77,6 +133,8 @@ export function ContactForm() {
                         required
                         id="message"
                         rows={4}
+                        value={formData.message}
+                        onChange={handleChange}
                         className="peer w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 pt-6 text-white outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all duration-300 resize-none"
                         placeholder=" "
                     />
@@ -84,6 +142,13 @@ export function ContactForm() {
                         How can we help?
                     </label>
                 </div>
+
+                {error && (
+                    <div className="flex items-center gap-2 text-red-400 bg-red-400/10 border border-red-400/20 p-3 rounded-lg text-sm">
+                        <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                        <p>{error}</p>
+                    </div>
+                )}
 
                 <button
                     type="submit"

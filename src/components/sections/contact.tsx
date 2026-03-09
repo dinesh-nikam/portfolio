@@ -49,7 +49,9 @@ export function ContactSection() {
                 <div className="w-full flex flex-col md:flex-row items-center justify-between gap-8 pt-8 border-t border-border/50 text-sm text-muted-foreground font-mono">
                     <p>© {new Date().getFullYear()} Dinesh Nikam. All rights reserved.</p>
 
-                    <div className="flex items-center gap-6">
+                    <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+                        <button onClick={() => window.dispatchEvent(new Event("open-cookie-settings"))} className="hover:text-foreground hover-underline transition-colors pb-1 text-left">Cookie Settings</button>
+                        <a href="/privacy-policy" className="hover:text-foreground hover-underline transition-colors pb-1">Privacy Policy</a>
                         <a href="https://github.com/dinesh-nikam" target="_blank" rel="noopener noreferrer" className="hover:text-foreground hover-underline transition-colors pb-1">Github</a>
                         <a href="https://linkedin.com/in/dinesh-nikam3/" target="_blank" rel="noopener noreferrer" className="hover:text-foreground hover-underline transition-colors pb-1">LinkedIn</a>
                         <a href="https://twitter.com/dinesh_nikam3" target="_blank" rel="noopener noreferrer" className="hover:text-foreground hover-underline transition-colors pb-1">Twitter</a>

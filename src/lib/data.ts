@@ -6,7 +6,7 @@ export const projectsData = [
         title: "cybersherlock",
         description: "IP data visualization and predictive modeling engine.",
         role: "Frontend Architecture & Re-platforming",
-        tech: ["nextjs", "react", "D3.js", "Tailwind CSS" ,"mongodb" ,"shodan"],
+        tech: ["nextjs", "react", "D3.js", "Tailwind CSS", "mongodb", "shodan"],
         link: "#",
         image: "/cybersherlock.png",
     },
@@ -163,4 +163,51 @@ export const statsData = [
     { label: "Years Experience", value: "14+" },
     { label: "Projects Delivered", value: "50+" },
     { label: "Technologies Mastered", value: "30+" }
+];
+
+export const certificationsData = [
+    {
+        id: "aws-sa-2025",
+        title: "AWS Certified Solutions Architect – Associate",
+        issuer: "Amazon Web Services",
+        date: "March 2025",
+        credentialId: "AWS-SAA-12345",
+        link: "https://aws.amazon.com/certification/certified-solutions-architect-associate/",
+        category: "Cloud",
+        image: "/certifications/aws-sa.png",
+        icon: "aws"
+    },
+    {
+        id: "gcp-ace-2024",
+        title: "Google Cloud Associate Cloud Engineer",
+        issuer: "Google Cloud",
+        date: "October 2024",
+        credentialId: "GCP-ACE-67890",
+        link: "https://cloud.google.com/certification/cloud-engineer",
+        category: "Cloud",
+        image: "/certifications/gcp-ace.png",
+        icon: "gcp"
+    },
+    {
+        id: "k8s-cka-2023",
+        title: "Certified Kubernetes Administrator (CKA)",
+        issuer: "Cloud Native Computing Foundation",
+        date: "June 2023",
+        credentialId: "CKA-112233",
+        link: "https://www.cncf.io/certification/cka/",
+        category: "DevOps",
+        image: "/certifications/cncf-cka.png",
+        icon: "k8s"
+    },
+    {
+        id: "meta-frontend-2023",
+        title: "Meta Front-End Developer Professional Certificate",
+        issuer: "Meta",
+        date: "January 2023",
+        credentialId: "META-FE-445566",
+        link: "https://www.coursera.org/professional-certificates/meta-front-end-developer",
+        category: "Frontend",
+        image: "/certifications/meta-fe.png",
+        icon: "react"
+    }
 ];

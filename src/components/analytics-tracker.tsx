@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 
@@ -19,11 +19,9 @@ const getOrCreateVisitorId = () => {
     return visitorId;
 };
 
-// Singleton tracking state to prevent duplicate calls in React Strict Mode
-let isTrackingInitialized = false;
-
 export function AnalyticsTracker() {
     const pathname = usePathname();
+    const trackingInitialized = useRef(false);
 
     const trackHeartbeat = useCallback(async () => {
         const visitorId = getOrCreateVisitorId();
@@ -68,19 +66,48 @@ export function AnalyticsTracker() {
 
     // Heartbeat interval for time-on-site logic
     useEffect(() => {
-        if (typeof window === "undefined" || isTrackingInitialized) return;
-
-        isTrackingInitialized = true;
+        if (typeof window === "undefined" || trackingInitialized.current) return;
+        trackingInitialized.current = true;
 
         // Initial heartbeat on full page load to establish session and visitor profile
         trackHeartbeat();
 
-        // Pulse heartbeat every 15 seconds to update time spent
-        const interval = setInterval(() => {
-            trackHeartbeat();
-        }, 15000);
+        let interval: NodeJS.Timeout | null = null;
 
-        return () => clearInterval(interval);
+        const startHeartbeat = () => {
+            if (!interval) {
+                interval = setInterval(() => {
+                    trackHeartbeat();
+                }, 15000);
+            }
+        };
+
+        const stopHeartbeat = () => {
+            if (interval) {
+                clearInterval(interval);
+                interval = null;
+            }
+        };
+
+        // Start initially
+        if (document.visibilityState === "visible") {
+            startHeartbeat();
+        }
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === "visible") {
+                startHeartbeat();
+            } else {
+                stopHeartbeat();
+            }
+        };
+
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+
+        return () => {
+            stopHeartbeat();
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+        };
     }, [trackHeartbeat]);
 
     // Route change tracking (PageView)
