@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+
+  <!-- Home Page -->
+  <url>
+    <loc>https://dineshnikam.com/</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:caption>Dinesh Nikam — Full Stack Developer Portfolio</image:caption>
+      <image:title>Dinesh Nikam Portfolio</image:title>
+      <image:loc>https://dineshnikam.com/og-image.svg</image:loc>
+    </image:image>
+  </url>
+
+  <!-- Writing Listing -->
+  <url>
+    <loc>https://dineshnikam.com/writing</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Contact -->
+  <url>
+    <loc>https://dineshnikam.com/contactme</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Resume -->
+  <url>
+    <loc>https://dineshnikam.com/resume</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Privacy Policy -->
+  <url>
+    <loc>https://dineshnikam.com/privacy-policy</loc>
+    <lastmod>2025-03-10</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+</urlset>

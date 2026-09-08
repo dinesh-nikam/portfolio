@@ -1,14 +1,14 @@
-import dynamic from "next/dynamic";
+import { createMetadata } from "@/lib/metadata";
 import { NavigationBar } from "@/components/navigation-bar";
 import { HeroSection } from "@/components/sections/hero";
 import { AboutSection } from "@/components/sections/about";
+import { HomeClientContent } from "@/components/home-client-content";
 
-const ProjectsSection = dynamic(() => import("@/components/sections/projects").then(m => m.ProjectsSection));
-const ServicesSection = dynamic(() => import("@/components/services/ServicesSection").then(m => m.ServicesSection));
-const SkillsSection = dynamic(() => import("@/components/skills/SkillsSection").then(m => m.SkillsSection));
-const ExperienceSection = dynamic(() => import("@/components/sections/experience").then(m => m.ExperienceSection));
-const CertificationsSection = dynamic(() => import("@/components/sections/certifications").then(m => m.CertificationsSection));
-const ContactSection = dynamic(() => import("@/components/sections/contact").then(m => m.ContactSection));
+export const metadata = createMetadata({
+  title: "Full Stack Developer | Dinesh Nikam",
+  description:
+    "Portfolio of Dinesh Nikam — full stack engineer crafting calm, precise, editorial-grade digital products at the intersection of code, motion, and design.",
+});
 
 export default function Home() {
   return (
@@ -18,13 +18,11 @@ export default function Home() {
       {/* Sections wrapper for smooth scrolling and GSAP context */}
       <div id="smooth-wrapper" className="w-full flex flex-col items-center">
         <HeroSection />
+
         <AboutSection />
-        <SkillsSection />
-        <ExperienceSection />
-        <CertificationsSection />
-        <ProjectsSection />
-        <ServicesSection />
-        <ContactSection />
+
+        {/* Dynamically loaded sections rendered via client wrapper */}
+        <HomeClientContent />
       </div>
     </main>
   );

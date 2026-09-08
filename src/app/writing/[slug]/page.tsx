@@ -4,38 +4,59 @@ import { ArrowLeft, Clock, CalendarDays } from 'lucide-react';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
-// @ts-ignore
 import rehypePrettyCode from 'rehype-pretty-code';
 import prisma from '@/lib/prisma';
 import { mdxComponents } from '@/components/writing/mdx-components';
 import { ReadingProgress } from '@/components/writing/reading-progress';
 import { ViewTracker } from '@/components/writing/view-tracker';
-
-interface ArticlePageProps {
-    params: { slug: string };
-}
+import { JsonLdScript, buildArticleSchema } from '@/components/seo/json-ld';
+import { SITE_URL } from '@/lib/metadata';
 
 // Ensure the route is dynamic or statically generated later if configured.
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
-    const article = await prisma.article.findUnique({ where: { slug } });
+    const article = await prisma.article.findUnique({
+        where: { slug },
+        select: {
+            title: true,
+            excerpt: true,
+            publishedAt: true,
+            createdAt: true,
+            updatedAt: true,
+            category: true,
+            slug: true,
+        },
+    });
 
     if (!article) {
         return { title: 'Not Found | Dinesh Nikam' };
     }
 
+    const publishDate = article.publishedAt ?? article.createdAt;
+    const modifiedDate = article.updatedAt ?? publishDate;
+
     return {
-        title: `${article.title} | Dinesh Nikam`,
+        title: article.title,
         description: article.excerpt,
+        alternates: {
+            canonical: `${SITE_URL}/writing/${article.slug ?? slug}`,
+        },
         openGraph: {
-            title: `${article.title} | Dinesh Nikam`,
+            title: article.title,
             description: article.excerpt,
             type: 'article',
-            publishedTime: (article.publishedAt || article.createdAt).toISOString(),
+            publishedTime: publishDate.toISOString(),
+            modifiedTime: modifiedDate.toISOString(),
             authors: ['Dinesh Nikam'],
-        }
+            section: article.category,
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: article.title,
+            description: article.excerpt,
+        },
     };
 }
 
@@ -50,10 +71,23 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         notFound();
     }
 
+    // Build JSON-LD article schema
+    const publishDate = article.publishedAt ?? article.createdAt;
+    const modifiedDate = article.updatedAt ?? publishDate;
+    const articleSchema = buildArticleSchema({
+        title: article.title,
+        excerpt: article.excerpt,
+        datePublished: publishDate.toISOString(),
+        dateModified: modifiedDate.toISOString(),
+        slug: article.slug,
+    });
+
     return (
         <div className="min-h-screen bg-background text-foreground pt-24 pb-32">
             <ReadingProgress />
             <ViewTracker slug={slug} />
+            {/* Structured Data: BlogPosting schema */}
+            <JsonLdScript data={articleSchema} />
 
             <div className="max-w-3xl mx-auto px-6 md:px-12 w-full">
                 {/* Navigation */}
@@ -69,7 +103,10 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
                 {/* Article Header */}
                 <header className="mb-16">
-                    <div className="flex flex-wrap items-center gap-4 text-xs font-mono text-muted-foreground mb-8">
+                    <nav
+                        aria-label="Article metadata"
+                        className="flex flex-wrap items-center gap-4 text-xs font-mono text-muted-foreground mb-8"
+                    >
                         <span className="px-3 py-1.5 rounded-full bg-foreground/10 text-foreground/80 uppercase tracking-widest text-[10px]">
                             {article.category}
                         </span>
@@ -90,7 +127,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                         <div className="flex items-center gap-1.5">
                             <span>{article.views + 1} views</span>
                         </div>
-                    </div>
+                    </nav>
 
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-light tracking-tight leading-[1.1] mb-6">
                         {article.title}

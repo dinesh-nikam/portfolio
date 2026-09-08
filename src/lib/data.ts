@@ -160,7 +160,7 @@ export const servicesData = [
 ];
 
 export const statsData = [
-    { label: "Years Experience", value: "14+" },
+    { label: "Years Experience", value: "3+" },
     { label: "Projects Delivered", value: "50+" },
     { label: "Technologies Mastered", value: "30+" }
 ];

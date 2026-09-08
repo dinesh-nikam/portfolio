@@ -16,8 +16,7 @@ export function ContactSection() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 1, ease: [0.76, 0, 0.24, 1] }}
-                        className="text-display hover:opacity-80 transition-opacity cursor-pointer cursor-hover"
-                        data-cursor-text="Say Hi"
+                        className="text-display hover:opacity-80 transition-opacity cursor-pointer"
                     >
                         Let&apos;s Talk
                     </motion.h2>
@@ -33,7 +32,7 @@ export function ContactSection() {
                     </motion.p>
 
                     <motion.a
-                        href="mailto:hello@example.com"
+                        href="mailto:nikamdinesh362@gmail.com"
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
@@ -45,7 +44,7 @@ export function ContactSection() {
                     </motion.a>
                 </div>
 
-                {/* Minimal Footer Footer */}
+                {/* Minimal Footer */}
                 <div className="w-full flex flex-col md:flex-row items-center justify-between gap-8 pt-8 border-t border-border/50 text-sm text-muted-foreground font-mono">
                     <p>© {new Date().getFullYear()} Dinesh Nikam. All rights reserved.</p>
 

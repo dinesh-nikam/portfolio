@@ -1,19 +1,29 @@
-import type { Metadata } from "next";
 import "./globals.css";
-import { Inter, JetBrains_Mono } from "next/font/google"; // Changed to Inter
+import { Bodoni_Moda, Schibsted_Grotesk, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { LenisProvider } from "@/components/lenis-provider";
-import { CustomCursor } from "@/components/custom-cursor";
-import { PageLoad } from "@/components/page-load";
 import { AnalyticsTracker } from "@/components/analytics-tracker";
-import dynamic from "next/dynamic";
+import { CookieConsent } from "@/components/cookie-consent";
+import PageLoad from "@/components/page-load";
+import CustomCursor from "@/components/custom-cursor";
+import VfxCursor from "@/components/vfx-cursor";
+import BackgroundProvider from "@/components/background-provider";
+import { JsonLdScript, buildPersonSchema, buildWebSiteSchema } from "@/components/seo/json-ld";
+import { baseMetadata } from "@/lib/metadata";
 
-import { BackgroundProvider } from "@/components/background-provider";
+// Display serif — Bodoni Moda (editorial print identity)
+const bodoniModa = Bodoni_Moda({
+  variable: "--font-display",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+});
 
-// Use Inter for primary typography (clean, minimalist, editorial)
-const inter = Inter({
+// Body sans — Schibsted Grotesk (distinctive grotesque, not Inter)
+const schibstedGrotesk = Schibsted_Grotesk({
   variable: "--font-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -22,26 +32,11 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500", "600"],
 });
 
-export const metadata: Metadata = {
-  title: "Dinesh Nikam | Full Stack Developer", // Updated title
-  description: "Minimalist, luxury, cinematic portfolio experience by Principal Product Designer and Senior Frontend Architect.", // Updated desc
-  keywords: ["Software developer", "portfolio", "react", "next.js", "framer motion", "minimalist"],
-  openGraph: {
-    title: "Dinesh Nikam | Creative Developer",
-    description: "Minimalist, luxury, cinematic portfolio experience.",
-    url: "https://dineshnikam.com",
-    siteName: "Dinesh Nikam Portfolio",
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Dinesh Nikam | Creative Developer",
-    description: "Minimalist, luxury, cinematic portfolio experience.",
-  },
-};
+export const metadata = baseMetadata;
 
-import { CookieConsent } from "@/components/cookie-consent";
+export const viewport = {
+  themeColor: "#0a0a0a",
+};
 
 export default function RootLayout({
   children,
@@ -50,24 +45,26 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Structured Data — Person + WebSite (rendered in SSR HTML for crawlers) */}
+        <JsonLdScript data={buildPersonSchema()} />
+        <JsonLdScript data={buildWebSiteSchema()} />
+      </head>
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} antialiased bg-background text-foreground font-sans`}
+        className={`${bodoniModa.variable} ${schibstedGrotesk.variable} ${jetbrainsMono.variable} antialiased bg-background text-foreground font-sans`}
         suppressHydrationWarning
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
-          enableSystem
+          defaultTheme="light"
           disableTransitionOnChange
         >
           <LenisProvider>
             <PageLoad />
             <CustomCursor />
+            <VfxCursor />
             <AnalyticsTracker />
-            <BackgroundProvider />
-            <div className="relative z-[2]">
-              {children}
-            </div>
+            <BackgroundProvider>{children}</BackgroundProvider>
             <CookieConsent />
           </LenisProvider>
         </ThemeProvider>

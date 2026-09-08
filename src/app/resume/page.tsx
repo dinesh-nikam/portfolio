@@ -1,12 +1,14 @@
 import { Metadata } from "next";
+import { createMetadata } from "@/lib/metadata";
 import { ExperienceSection } from "@/components/experience/ExperienceSection";
 import { NavigationBar } from "@/components/navigation-bar";
 import { ContactSection } from "@/components/sections/contact";
 
-export const metadata: Metadata = {
-    title: "Resume – Developer Portfolio",
-    description: "Professional experience, skills, and achievements.",
-};
+export const metadata: Metadata = createMetadata({
+  title: "Resume",
+  description:
+    "Professional experience, skills, and achievements of Dinesh Nikam — Full Stack Developer specializing in React, Next.js, AWS, and cloud architecture.",
+});
 
 export default function ResumePage() {
     return (
@@ -19,7 +21,7 @@ export default function ResumePage() {
                 <ExperienceSection />
 
                 {/* Optional: Add contact section at the bottom to give users a clear next step */}
-                <div className="w-full max-w-6xl mx-auto h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent my-12" />
+                <div className="w-full max-w-6xl mx-auto h-[1px] bg-border/50 my-12" />
                 <ContactSection />
             </div>
         </main>
