@@ -7,7 +7,7 @@
  * Reference: https://schema.org/
  */
 
-import { SITE_NAME, SITE_URL, JOB_TITLE, SITE_DESCRIPTION, SOCIAL_PROFILES } from "@/lib/metadata";
+import { SITE_NAME, SITE_URL, JOB_TITLE, SITE_DESCRIPTION, SOCIAL_PROFILES, OG_IMAGE_URL } from "@/lib/metadata";
 
 interface JsonLdProps {
   /** The JSON-LD object to embed. */
@@ -93,7 +93,7 @@ export function buildArticleSchema({
   dateModified,
   slug,
   author = SITE_NAME,
-  image = `${SITE_URL}/og-image.png`,
+  image = `${OG_IMAGE_URL}`,
 }: ArticleSchemaProps) {
   const url = `${SITE_URL}/writing/${slug}`;
   return {
@@ -139,5 +139,21 @@ export function buildBlogListingSchema() {
       name: SITE_NAME,
     },
     hasPart: [],
+  };
+}
+
+/**
+ * BreadcrumbList schema for navigation aids on deeper pages.
+ */
+export function buildBreadcrumbSchema(items: { name: string; item: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: item.item,
+    })),
   };
 }

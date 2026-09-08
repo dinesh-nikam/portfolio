@@ -9,7 +9,7 @@ import prisma from '@/lib/prisma';
 import { mdxComponents } from '@/components/writing/mdx-components';
 import { ReadingProgress } from '@/components/writing/reading-progress';
 import { ViewTracker } from '@/components/writing/view-tracker';
-import { JsonLdScript, buildArticleSchema } from '@/components/seo/json-ld';
+import { JsonLdScript, buildArticleSchema, buildBreadcrumbSchema } from '@/components/seo/json-ld';
 import { SITE_URL } from '@/lib/metadata';
 
 // Ensure the route is dynamic or statically generated later if configured.
@@ -71,7 +71,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         notFound();
     }
 
-    // Build JSON-LD article schema
+    // Build JSON-LD schemas
     const publishDate = article.publishedAt ?? article.createdAt;
     const modifiedDate = article.updatedAt ?? publishDate;
     const articleSchema = buildArticleSchema({
@@ -82,12 +82,19 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         slug: article.slug,
     });
 
+    const breadcrumbSchema = buildBreadcrumbSchema([
+        { name: "Home", item: SITE_URL },
+        { name: "Writing", item: `${SITE_URL}/writing` },
+        { name: article.title, item: `${SITE_URL}/writing/${article.slug}` },
+    ]);
+
     return (
         <div className="min-h-screen bg-background text-foreground pt-24 pb-32">
             <ReadingProgress />
             <ViewTracker slug={slug} />
-            {/* Structured Data: BlogPosting schema */}
+            {/* Structured Data: BlogPosting + Breadcrumb schemas */}
             <JsonLdScript data={articleSchema} />
+            <JsonLdScript data={breadcrumbSchema} />
 
             <div className="max-w-3xl mx-auto px-6 md:px-12 w-full">
                 {/* Navigation */}

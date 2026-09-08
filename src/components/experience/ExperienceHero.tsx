@@ -3,15 +3,9 @@
 import { useRef, useEffect, useState } from "react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { statsData } from "@/lib/data";
-import { ArrowDownRight } from "lucide-react";
-import dynamic from "next/dynamic";
+import { ArrowDownRight, FileText, Sparkles } from "lucide-react";
 
-const ParticleImage = dynamic(() => import("@/components/particle-image").then((mod) => mod.ParticleImage), {
-    ssr: false,
-    loading: () => <div className="w-full h-full bg-secondary/20 animate-pulse rounded-lg" />
-});
-
-// Extracted AnimatedCounter component for neatness
+// Extracted AnimatedCounter component - Fully theme responsive contrast
 function AnimatedCounter({ value, label }: { value: string; label: string }) {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true, margin: "-50px" });
@@ -25,7 +19,7 @@ function AnimatedCounter({ value, label }: { value: string; label: string }) {
             let start = 0;
             const end = numericValue;
             const duration = 2000;
-            const increment = end / (duration / 16); // 60fps
+            const increment = end / (duration / 16);
 
             const timer = setInterval(() => {
                 start += increment;
@@ -41,11 +35,14 @@ function AnimatedCounter({ value, label }: { value: string; label: string }) {
     }, [isInView, numericValue]);
 
     return (
-        <div ref={ref} className="flex flex-col items-start justify-center p-6 backdrop-blur-sm bg-white/[0.02] border border-white/5 rounded-2xl min-w-[140px]">
-            <h4 className="text-3xl font-bold text-white mb-1 font-mono">
+        <div
+            ref={ref}
+            className="flex flex-col items-start justify-center p-6 bg-card border border-border rounded-md hover:border-primary/40 transition-all duration-300 min-w-[150px]"
+        >
+            <h4 className="text-3xl font-extrabold text-foreground mb-1 font-mono tracking-tight">
                 {count}{suffix}
             </h4>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">
                 {label}
             </p>
         </div>
@@ -67,19 +64,27 @@ export function ExperienceHero() {
     return (
         <section
             ref={containerRef}
-            className="relative min-h-[90vh] w-full flex flex-col justify-center px-6 md:px-12 lg:px-24 overflow-hidden pt-20"
+            className="relative min-h-[90vh] w-full flex flex-col justify-center px-6 md:px-12 lg:px-24 overflow-hidden pt-20 bg-background"
         >
             <motion.div
                 style={{ y, opacity }}
-                className="w-full max-w-8xl mx-auto flex flex-col items-start gap-12 z-10"
+                className="w-full max-w-7xl mx-auto flex flex-col items-start gap-10 z-10"
             >
-                <div className="flex flex-col gap-2">
+                {/* Visual Category Label */}
+                <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    <span className="font-mono text-xs tracking-[0.25em] uppercase text-primary font-semibold">
+                        Professional Dossier
+                    </span>
+                </div>
+
+                <div className="flex flex-col gap-3">
                     <div className="overflow-hidden">
                         <motion.h1
                             initial={{ y: "100%" }}
                             animate={{ y: 0 }}
-                            transition={{ duration: 1, ease: [0.76, 0, 0.24, 1], delay: 1.8 }}
-                            className="text-display"
+                            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+                            className="text-display text-foreground select-none tracking-tighter"
                         >
                             Curriculum Vitae
                         </motion.h1>
@@ -88,10 +93,10 @@ export function ExperienceHero() {
                         <motion.h2
                             initial={{ y: "100%" }}
                             animate={{ y: 0 }}
-                            transition={{ duration: 1, ease: [0.76, 0, 0.24, 1], delay: 1.9 }}
-                            className="text-title text-muted-foreground font-light"
+                            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+                            className="text-2xl md:text-3xl text-muted-foreground font-light tracking-tight"
                         >
-                            Professional Experience <span className="mx-2 opacity-50">/</span> Skills <span className="mx-2 opacity-50"></span> 
+                            Professional Experience <span className="mx-2 opacity-30">/</span> Achievements <span className="mx-2 opacity-30">/</span> Education
                         </motion.h2>
                     </div>
                 </div>
@@ -99,54 +104,49 @@ export function ExperienceHero() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 1, delay: 2.2, ease: "easeOut" }}
-                    className="max-w-xl"
+                    transition={{ duration: 1, delay: 0.4, ease: "easeOut" }}
+                    className="max-w-2xl"
                 >
-                    <p className="text-body leading-relaxed md:leading-loose">
-                        A comprehensive overview of my career journey, showcasing my evolution as an engineer and the impact I've made building scalable digital products and immersive web experiences.
+                    <p className="text-body text-base md:text-lg leading-relaxed text-muted-foreground font-light">
+                        A detailed timeline of my technical career journey, highlighting my impact as a full-stack engineer and cloud architect building fault-tolerant products, high-efficiency cloud infrastructures, and pixel-perfect custom interfaces.
                     </p>
                 </motion.div>
 
-                {/* Animated Counters Grid & CTA */}
+                {/* Animated Counters Grid & CTA Center Alignment */}
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ duration: 1, delay: 2.5 }}
-                    className="flex flex-wrap items-center gap-6 mt-4"
+                    transition={{ duration: 1, delay: 0.6 }}
+                    className="flex flex-wrap items-center gap-6 mt-6 w-full lg:w-auto"
                 >
-                    {statsData.map((stat, idx) => (
-                        <AnimatedCounter key={idx} value={stat.value} label={stat.label} />
-                    ))}
-                    <div className="w-full md:w-auto mt-4 md:mt-0 md:ml-4">
+                    <div className="flex flex-wrap gap-4 items-center w-full sm:w-auto">
+                        {statsData.map((stat, idx) => (
+                            <AnimatedCounter key={idx} value={stat.value} label={stat.label} />
+                        ))}
+                    </div>
+
+                    {/* Perfect alignment container for Download button */}
+                    <div className="w-full sm:w-auto mt-2 sm:mt-0">
                         <motion.a
                             href="https://drive.google.com/file/d/15sOTRbV-1NFzoL3Ko_Bh5iKd43L1yuyF/view?usp=drivesdk"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="btn-elegant group cursor-hover inline-flex w-full md:w-auto justify-center"
-                            data-cursor-text="Download"
+                            rel="noopener noreferrer"
+                            whileHover={{ scale: 1.03, y: -2 }}
+                            whileTap={{ scale: 0.97 }}
+                            className="group relative inline-flex w-full sm:w-auto items-center justify-center gap-3 px-8 py-4 rounded-md bg-primary text-primary-foreground font-semibold text-sm tracking-wider transition-all duration-300 border border-primary overflow-hidden"
                         >
-                            Download PDF
-                            <ArrowDownRight className="w-4 h-4 transition-transform group-hover:rotate-[-45deg]" />
+                            <FileText className="w-4 h-4 shrink-0 transition-transform group-hover:rotate-6" />
+                            <span className="uppercase font-mono tracking-widest text-xs">Download PDF Resume</span>
+                            <ArrowDownRight className="w-4 h-4 shrink-0 transition-transform group-hover:rotate-[-45deg]" />
                         </motion.a>
                     </div>
                 </motion.div>
             </motion.div>
 
-            {/* Background Particle Image or Glow */}
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 2, delay: 2, ease: [0.76, 0, 0.24, 1] }}
-                className="absolute right-0 top-1/2 -translate-y-1/2 w-full max-w-lg lg:max-w-2xl aspect-[4/3] pointer-events-auto mix-blend-lighten hidden md:block z-0 opacity-40 grayscale"
-            >
-                <ParticleImage src="./mypic.png" />
-            </motion.div>
-
-            {/* Decorative vertical line */}
+            {/* Decorative vertical track line */}
             <motion.div
                 initial={{ scaleY: 0 }}
                 animate={{ scaleY: 1 }}
-                transition={{ duration: 1.5, delay: 2.5, ease: [0.76, 0, 0.24, 1] }}
+                transition={{ duration: 1.5, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
                 className="absolute bottom-0 left-6 md:left-12 lg:left-24 w-[1px] h-32 bg-border origin-bottom"
             />
         </section>

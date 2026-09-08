@@ -1,15 +1,13 @@
 "use client";
 
 import { motion, Variants } from "framer-motion";
-import { Github, Twitter, Linkedin, Dribbble, Instagram } from "lucide-react";
+import { Github, Twitter, Linkedin } from "lucide-react";
 
 export function SocialLinks() {
     const socialLinks = [
-        { name: "GitHub", icon: Github, href: "https://github.com/dinesh-nikam", color: "hover:text-foreground hover:bg-foreground/10 hover:border-foreground/30" },
-        { name: "LinkedIn", icon: Linkedin, href: "https://linkedin.com/in/dinesh-nikam3/", color: "hover:text-blue-500 hover:bg-blue-500/10 hover:border-blue-500/30" },
-        { name: "Twitter", icon: Twitter, href: "https://twitter.com/dinesh_nikam3", color: "hover:text-foreground hover:bg-foreground/10 hover:border-foreground/30" },
-        { name: "Dribbble", icon: Dribbble, href: "https://dribbble.com", color: "hover:text-foreground hover:bg-foreground/10 hover:border-foreground/30" },
-        { name: "Instagram", icon: Instagram, href: "https://instagram.com/dinesh", color: "hover:text-foreground hover:bg-foreground/10 hover:border-foreground/30" },
+        { name: "GitHub", icon: Github, href: "https://github.com/dinesh-nikam", rel: "me", color: "hover:text-primary hover:bg-primary/10 hover:border-primary/40" },
+        { name: "LinkedIn", icon: Linkedin, href: "https://linkedin.com/in/dinesh-nikam3/", rel: "me", color: "hover:text-primary hover:bg-primary/10 hover:border-primary/40" },
+        { name: "Twitter", icon: Twitter, href: "https://twitter.com/dinesh_nikam3", rel: "me", color: "hover:text-primary hover:bg-primary/10 hover:border-primary/40" },
     ];
 
     const containerVariants: Variants = {
@@ -29,7 +27,7 @@ export function SocialLinks() {
     };
 
     return (
-        <div className="mt-12 pt-12 border-t border-foreground/5">
+        <div className="mt-12 pt-12 border-t border-border/50">
             <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-6">Connect across the web</h4>
             <motion.div
                 variants={containerVariants}
@@ -45,8 +43,8 @@ export function SocialLinks() {
                             variants={itemVariants}
                             href={social.href}
                             target="_blank"
-                            rel="noopener noreferrer"
-                            className={`p-4 rounded-xl bg-foreground/5 border border-foreground/5 text-muted-foreground transition-all duration-300 group ${social.color}`}
+                            rel={social.rel ? `${social.rel} noopener noreferrer` : "noopener noreferrer"}
+                            className={`p-4 rounded-md bg-muted/30 border border-border/70 text-muted-foreground transition-all duration-300 group ${social.color}`}
                             aria-label={social.name}
                         >
                             <Icon className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
