@@ -143,6 +143,7 @@ export default function AdminWritingDashboard() {
                                                 <Link
                                                     href={`/writing/${article.slug}`}
                                                     target="_blank"
+                                                    rel="noopener noreferrer"
                                                     className="p-1.5 rounded bg-white/5 hover:bg-white/10 transition-colors"
                                                     title="View Live"
                                                 >
