@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { CinematicFooter } from "@/components/ui/motion-footer";
 
 export const metadata: Metadata = {
-  title: "Motion Footer Demo | Dinesh Nikam",
+  title: "Motion Footer Demo",
   description: "Cinematic animated footer demo with Framer Motion.",
   robots: { index: false, follow: false },
 };

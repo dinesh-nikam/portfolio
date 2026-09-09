@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { GlobePulse } from "@/components/ui/cobe-globe-pulse";
 
 export const metadata: Metadata = {
-  title: "Globe Pulse Demo | Dinesh Nikam",
+  title: "Globe Pulse Demo",
   description: "Interactive globe visualization demo using Three.js and Cobe.",
   robots: { index: false, follow: false },
 };
