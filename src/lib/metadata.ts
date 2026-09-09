@@ -102,10 +102,6 @@ export const baseMetadata: Metadata = {
   icons: [
     {
       rel: "icon",
-      url: "/favicon.ico",
-    },
-    {
-      rel: "icon",
       url: "/favicon.svg",
       type: "image/svg+xml",
     },
