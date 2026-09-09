@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { Home, Search, Mail } from "lucide-react";
-import { createMetadata } from "@/lib/metadata";
+import { createMetadata, SITE_URL } from "@/lib/metadata";
 import { JsonLdScript, buildBreadcrumbSchema } from "@/components/seo/json-ld";
-import { SITE_URL } from "@/lib/metadata";
 
 export const metadata = createMetadata({
   title: "404 — Page Not Found",

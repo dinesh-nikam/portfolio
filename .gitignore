@@ -39,6 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-".omo/"  
-"dev-server.log"  
-"ai_intelligence_system.md"  
+
+# Environment-specific temp files
+.omo/
+dev-server.log
+ai_intelligence_system.md

@@ -35,7 +35,7 @@ export function NavigationBar() {
 
             // Basic scroll spy for homepage sections
             if (pathname === "/") {
-                const sections = ["about", "skills", "experience", "projects", "services", "contact"];
+                const sections = ["about", "skills", "experience", "work", "services", "contact"];
                 let current = "";
 
                 for (const section of sections) {
