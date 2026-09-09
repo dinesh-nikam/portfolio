@@ -96,8 +96,12 @@ export const baseMetadata: Metadata = {
     images: [OG_IMAGE_URL],
   },
   verification: {
-    // google: "YOUR_GOOGLE_SEARCH_CONSOLE_VERIFICATION_CODE",
-    // bing: "YOUR_BING_VERIFICATION_CODE",
+    ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION && {
+      google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+    }),
+    ...(process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION && {
+      bing: process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION,
+    }),
   },
   icons: [
     {

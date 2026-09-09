@@ -6,6 +6,7 @@ import { SocialLinks } from "@/components/contact/social-links";
 import { NavigationBar } from "@/components/navigation-bar";
 import { Mail, Briefcase } from "lucide-react";
 import { createMetadata } from "@/lib/metadata";
+import { JsonLdScript, buildContactPageSchema } from "@/components/seo/json-ld";
 
 export const metadata = createMetadata({
   title: "Contact",
@@ -16,6 +17,7 @@ export const metadata = createMetadata({
 export default function ContactPage() {
     return (
         <main className="min-h-screen pt-32 pb-24 relative overflow-hidden bg-background">
+            <JsonLdScript data={buildContactPageSchema()} />
             <NavigationBar />
 
             <div className="container mx-auto px-6 md:px-12 relative z-10">

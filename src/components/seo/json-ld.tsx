@@ -222,3 +222,21 @@ export function buildBreadcrumbSchema(items: { name: string; item: string }[]) {
     })),
   };
 }
+
+/**
+ * ContactPage schema for the contact page.
+ */
+export function buildContactPageSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    name: "Contact — Dinesh Nikam",
+    description: "Get in touch for freelance opportunities, partnerships, and discussions about creative technology, React, Next.js, and cloud architecture.",
+    url: `${SITE_URL}/contactme`,
+    mainEntity: {
+      "@type": "Person",
+      name: SITE_NAME,
+      email: SOCIAL_PROFILES.email.replace("mailto:", ""),
+    },
+  };
+}
