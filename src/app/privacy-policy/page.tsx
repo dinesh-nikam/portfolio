@@ -6,7 +6,7 @@ export const metadata = createMetadata({
   title: "Privacy Policy",
   description:
     "Privacy Policy and data handling practices for Dinesh Nikam's portfolio. GDPR and CCPA compliant.",
-  ogImage: "https://dineshnikam.com/og-image.png",
+  ogImage: "https://dineshnikam.com/og-image.svg",
 });
 
 export default function PrivacyPolicyPage() {
