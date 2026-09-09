@@ -49,6 +49,25 @@ export function buildPersonSchema() {
       SOCIAL_PROFILES.linkedin,
       SOCIAL_PROFILES.twitter,
     ],
+    knowsLanguage: ["English", "Hindi"],
+    knowsProgrammingLanguage: [
+      "JavaScript",
+      "TypeScript",
+      "React",
+      "Next.js",
+      "Node.js",
+      "Python",
+      "SQL",
+      "GLSL",
+    ],
+    knowsAbout: [
+      "Full Stack Development",
+      "Cloud Architecture (AWS)",
+      "WebGL & 3D Graphics",
+      "UI/UX Design",
+      "DevOps & Containerization",
+      "System Design",
+    ],
   };
 }
 
@@ -70,6 +89,52 @@ export function buildWebSiteSchema() {
       target: `${SITE_URL}/writing?search=`,
       "query-input": "required name=search",
     },
+  };
+}
+
+/**
+ * Service schema for the portfolio's professional offerings.
+ * Each service is a self-contained entity with a name, description, and provider.
+ */
+export function buildServicesSchema() {
+  const services = [
+    {
+      name: "Web Development",
+      description: "Building fast, scalable, and beautifully animated web applications using Next.js and React.",
+      url: `${SITE_URL}/#work`,
+    },
+    {
+      name: "UI/UX Design",
+      description: "Crafting premium user interfaces with a focus on dark aesthetics, glassmorphism, and intuitive experiences.",
+      url: `${SITE_URL}/#skills`,
+    },
+    {
+      name: "WebGL & 3D",
+      description: "Creating immersive 3D web experiences using Three.js, React Three Fiber, and custom GLSL shaders.",
+      url: `${SITE_URL}/#work`,
+    },
+    {
+      name: "Creative Development",
+      description: "Bringing designs to life with fluid motion, GSAP animations, and physics-based interactions.",
+      url: `${SITE_URL}/#work`,
+    },
+  ];
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListElement: services.map((service, index) => ({
+      "@type": "Service",
+      position: index + 1,
+      name: service.name,
+      description: service.description,
+      serviceType: service.name,
+      provider: {
+        "@type": "Person",
+        name: SITE_NAME,
+      },
+      url: service.url,
+    })),
   };
 }
 

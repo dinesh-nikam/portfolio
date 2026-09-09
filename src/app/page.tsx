@@ -1,4 +1,5 @@
 import { createMetadata } from "@/lib/metadata";
+import { JsonLdScript, buildServicesSchema } from "@/components/seo/json-ld";
 import { NavigationBar } from "@/components/navigation-bar";
 import { HeroSection } from "@/components/sections/hero";
 import { AboutSection } from "@/components/sections/about";
@@ -13,6 +14,9 @@ export const metadata = createMetadata({
 export default function Home() {
   return (
     <main className="min-h-screen bg-background text-foreground flex flex-col w-full relative">
+      {/* Structured Data: Services (ItemList of Service entities) */}
+      <JsonLdScript data={buildServicesSchema()} />
+
       <NavigationBar />
 
       {/* Sections wrapper for smooth scrolling and GSAP context */}
