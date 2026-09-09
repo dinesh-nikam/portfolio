@@ -18,10 +18,10 @@ export function ExperienceTimeline() {
         <section ref={containerRef} className="w-full max-w-5xl mx-auto py-20 px-6 relative">
 
             <div className="relative">
-                {/* Glowing vertical timeline line */}
-                <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-white/5 md:left-2 transform -translate-x-1/2 z-0 hidden md:block" />
+                {/* Vertical timeline line */}
+                <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-border/40 md:left-2 transform -translate-x-1/2 z-0 hidden md:block" />
                 <motion.div
-                    className="absolute left-0 top-0 bottom-0 w-[2px] bg-gradient-to-b from-blue-500 to-transparent md:left-2 transform -translate-x-1/2 origin-top z-0 hidden md:block"
+                    className="absolute left-0 top-0 bottom-0 w-[2px] bg-gradient-to-b from-primary via-primary/40 to-transparent md:left-2 transform -translate-x-1/2 origin-top z-0 hidden md:block"
                     style={{ scaleY }}
                 />
 

@@ -1,112 +1,98 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { useCapable } from "@/hooks/use-capable";
 
-export function CustomCursor() {
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-    const [isHovering, setIsHovering] = useState(false);
-    const [hoverText, setHoverText] = useState("");
+export default function CustomCursor() {
+    const { capable } = useCapable();
+    const dotRef = useRef<HTMLDivElement | null>(null);
+    const ringRef = useRef<HTMLDivElement | null>(null);
+    const labelRef = useRef<HTMLSpanElement | null>(null);
 
     useEffect(() => {
-        // Feature detect touch devices - disable custom cursor on touch
-        if (typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches) {
-            return;
-        }
+        if (!capable) return;
+        const dot = dotRef.current;
+        const ring = ringRef.current;
+        const label = labelRef.current;
+        if (!dot || !ring || !label) return;
 
-        // Hide default cursor
-        document.body.style.cursor = 'none';
+        document.documentElement.classList.add("has-custom-cursor");
 
-        const handleMouseMove = (e: MouseEvent) => {
-            setMousePosition({ x: e.clientX, y: e.clientY });
-        };
+        const dotX = gsap.quickTo(dot, "x", { duration: 0.12, ease: "power3.out" });
+        const dotY = gsap.quickTo(dot, "y", { duration: 0.12, ease: "power3.out" });
+        const ringX = gsap.quickTo(ring, "x", { duration: 0.45, ease: "power3.out" });
+        const ringY = gsap.quickTo(ring, "y", { duration: 0.45, ease: "power3.out" });
 
-        const handleMouseOver = (e: MouseEvent) => {
-            const target = e.target as HTMLElement;
-            // Target interactable elements
-            if (
-                target.tagName.toLowerCase() === 'a' ||
-                target.tagName.toLowerCase() === 'button' ||
-                target.closest('a') ||
-                target.closest('button') ||
-                target.classList.contains('cursor-hover') ||
-                target.closest('.cursor-hover')
-            ) {
-                setIsHovering(true);
+        const onMove = (event: MouseEvent) => {
+            dotX(event.clientX);
+            dotY(event.clientY);
+            ringX(event.clientX);
+            ringY(event.clientY);
 
-                // Optional: Check if the element has data-cursor-text attribute
-                const elWithText = target.closest('[data-cursor-text]') as HTMLElement;
-                if (elWithText) {
-                    setHoverText(elWithText.getAttribute('data-cursor-text') || "");
-                } else {
-                    setHoverText("");
-                }
+            const target = event.target as HTMLElement | null;
+            const labelled = target?.closest?.("[data-cursor-text]") as
+                | HTMLElement
+                | null;
+            const interactive = target?.closest?.(
+                "a, button, [role='button'], [data-cursor-interactive]"
+            ) as HTMLElement | null;
+
+            if (labelled) {
+                label.textContent = labelled.getAttribute("data-cursor-text") ?? "";
+                gsap.to(ring, { scale: 2.6, opacity: 1, duration: 0.3, ease: "power2.out" });
+                gsap.to(label, { opacity: 1, duration: 0.25, ease: "power2.out" });
+            } else if (interactive) {
+                label.textContent = "";
+                gsap.to(ring, { scale: 1.8, opacity: 1, duration: 0.3, ease: "power2.out" });
+                gsap.to(label, { opacity: 0, duration: 0.2, ease: "power1.out" });
             } else {
-                setIsHovering(false);
-                setHoverText("");
+                label.textContent = "";
+                gsap.to(ring, { scale: 1, opacity: 0.55, duration: 0.3, ease: "power2.out" });
+                gsap.to(label, { opacity: 0, duration: 0.2, ease: "power1.out" });
             }
         };
 
-        const handleMouseLeave = () => {
-            setIsHovering(false);
-            setHoverText("");
+        const onLeave = () => {
+            gsap.to([dot, ring], { opacity: 0, duration: 0.2, ease: "power1.out" });
+        };
+        const onEnter = () => {
+            gsap.to([dot, ring], { opacity: 1, duration: 0.25, ease: "power1.out" });
         };
 
-        window.addEventListener("mousemove", handleMouseMove);
-        document.addEventListener("mouseover", handleMouseOver);
-        document.addEventListener("mouseout", handleMouseLeave);
+        window.addEventListener("mousemove", onMove, { passive: true });
+        document.documentElement.addEventListener("mouseleave", onLeave);
+        document.documentElement.addEventListener("mouseenter", onEnter);
 
         return () => {
-            window.removeEventListener("mousemove", handleMouseMove);
-            document.removeEventListener("mouseover", handleMouseOver);
-            document.removeEventListener("mouseout", handleMouseLeave);
-            document.body.style.cursor = 'auto'; // Restore default
+            document.documentElement.classList.remove("has-custom-cursor");
+            window.removeEventListener("mousemove", onMove);
+            document.documentElement.removeEventListener("mouseleave", onLeave);
+            document.documentElement.removeEventListener("mouseenter", onEnter);
+            gsap.killTweensOf([dot, ring, label]);
         };
-    }, []);
+    }, [capable]);
 
-    // Minimal dot
-    const variants = {
-        default: {
-            x: mousePosition.x - 4, // Center aligning (size is 8px)
-            y: mousePosition.y - 4,
-            width: 8,
-            height: 8,
-            backgroundColor: "var(--foreground)",
-            mixBlendMode: "difference" as const,
-        },
-        hover: {
-            x: mousePosition.x - (hoverText ? 40 : 20), // Center aligning
-            y: mousePosition.y - (hoverText ? 40 : 20),
-            width: hoverText ? 80 : 40,
-            height: hoverText ? 80 : 40,
-            mixBlendMode: hoverText ? "difference" : "normal",
-            backgroundColor: hoverText ? "var(--foreground)" : "rgba(0, 0, 0, 0)",
-            border: hoverText ? "none" : "1px solid var(--muted-foreground)",
-        }
-    };
+    if (!capable) return null;
 
     return (
-        <motion.div
-            className="fixed top-0 left-0 z-[9999] pointer-events-none rounded-full flex items-center justify-center overflow-hidden max-md:hidden"
-            variants={variants}
-            animate={isHovering ? "hover" : "default"}
-            transition={{
-                type: "spring",
-                stiffness: 400,
-                damping: 28,
-                mass: 0.5
-            }}
+        <div
+            className="pointer-events-none fixed inset-0 z-[300]"
+            aria-hidden="true"
         >
-            {/* If hovering and there is text, show a small label inside the cursor */}
-            {isHovering && hoverText && (
-                <motion.span
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="text-[10px] uppercase font-bold text-background tracking-widest"
-                >
-                    {hoverText}
-                </motion.span>
-            )}
-        </motion.div>
+            <div
+                ref={dotRef}
+                className="fixed left-0 top-0 -ml-[3px] -mt-[3px] h-1.5 w-1.5 rounded-full bg-foreground mix-blend-difference"
+            />
+            <div
+                ref={ringRef}
+                className="fixed left-0 top-0 -ml-5 -mt-5 flex h-10 w-10 items-center justify-center rounded-full border border-foreground opacity-55 mix-blend-difference"
+            >
+                <span
+                    ref={labelRef}
+                    className="whitespace-nowrap font-mono text-[9px] uppercase tracking-widest text-foreground opacity-0"
+                />
+            </div>
+        </div>
     );
 }

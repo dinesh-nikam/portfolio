@@ -6,10 +6,10 @@ import { Globe, Zap, Server, Code } from "lucide-react";
 
 // Map string icons to Lucide components
 const iconMap: Record<string, React.ReactNode> = {
-    "globe": <Globe className="w-6 h-6 text-cyan-400" />,
-    "zap": <Zap className="w-6 h-6 text-fuchsia-400" />,
-    "server": <Server className="w-6 h-6 text-violet-400" />,
-    "code": <Code className="w-6 h-6 text-emerald-400" />
+    "globe": <Globe className="w-6 h-6 text-primary" />,
+    "zap": <Zap className="w-6 h-6 text-primary" />,
+    "server": <Server className="w-6 h-6 text-primary" />,
+    "code": <Code className="w-6 h-6 text-primary" />
 };
 
 export function AchievementsSection() {
@@ -20,10 +20,10 @@ export function AchievementsSection() {
                     initial={{ opacity: 0, scale: 0.9 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
-                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-6 backdrop-blur-md"
+                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted/30 border border-border/70 mb-6"
                 >
-                    <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                    <span className="text-sm font-mono tracking-widest text-cyan-300">IMPACT</span>
+                    <div className="w-2 h-2 rounded-full bg-primary" />
+                    <span className="text-sm font-mono tracking-widest text-primary">IMPACT</span>
                 </motion.div>
 
                 <motion.h2
@@ -44,19 +44,19 @@ export function AchievementsSection() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true, margin: "-50px" }}
                         transition={{ duration: 0.6, delay: idx * 0.1 }}
-                        className="group relative flex items-start gap-6 p-6 rounded-2xl bg-white/[0.02] border border-white/5 backdrop-blur-sm hover:bg-white/[0.04] transition-all"
+                        className="group relative flex items-start gap-6 p-6 rounded-md bg-card border border-border hover:border-primary/40 transition-all"
                     >
-                        <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 group-hover:bg-white/10 transition-all duration-300">
-                            {iconMap[item.icon] || <Code className="w-6 h-6 text-violet-400" />}
+                        <div className="flex-shrink-0 w-14 h-14 rounded-md bg-muted/40 flex items-center justify-center border border-border/70 group-hover:scale-110 group-hover:bg-primary/10 transition-all duration-300">
+                            {iconMap[item.icon] || <Code className="w-6 h-6 text-primary" />}
                         </div>
 
                         <div className="flex flex-col">
-                            <h3 className="text-xl font-semibold text-white mb-2">{item.title}</h3>
+                            <h3 className="text-xl font-semibold text-foreground mb-2">{item.title}</h3>
                             <p className="text-muted-foreground leading-relaxed text-sm md:text-base mb-4">
                                 {item.description}
                             </p>
                             <div className="mt-auto">
-                                <span className="inline-flex items-center px-3 py-1 rounded-md bg-white/5 text-sm font-mono font-medium text-white border border-white/10 group-hover:border-white/20 group-hover:bg-white/10 transition-colors">
+                                <span className="inline-flex items-center px-3 py-1 rounded-md bg-muted/30 text-sm font-mono font-medium text-foreground border border-border/70 group-hover:border-primary/40 group-hover:bg-primary/10 transition-colors">
                                     {item.metric}
                                 </span>
                             </div>

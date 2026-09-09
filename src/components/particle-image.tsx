@@ -1,230 +1,243 @@
 "use client";
 
-import { useRef, useMemo, Suspense, useEffect, useState } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { useTexture } from "@react-three/drei";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { useCapable } from "@/hooks/use-capable";
+import { useSignalTokens } from "@/lib/signal-tokens";
 
-interface ParticleImageProps {
-    src: string;
+/* Portrait as particles — the hero portrait is re-sampled into a soft point
+   cloud over the base <Image> layer (LCP stays intact). Hovering repels the
+   particles around an ink-radius well; they settle back on release. */
+
+const IMAGE_URL = "/my.png";
+const TARGET_COUNT = 9000;
+
+interface Sample {
+    positions: Float32Array;
+    seeds: Float32Array;
+    aspect: number;
 }
 
-function Particles({ src }: { src: string }) {
-    const texture = useTexture(src) as THREE.Texture;
-    const materialRef = useRef<THREE.ShaderMaterial>(null);
-    const pointsRef = useRef<THREE.Points>(null);
-    const { viewport } = useThree();
+async function sampleImage(url: string): Promise<Sample | null> {
+    const image = new Image();
+    image.src = url;
+    image.decoding = "async";
+    await image.decode();
 
-    const targetHover = useRef(0);
-    const targetUv = useRef(new THREE.Vector2(0.5, 0.5));
+    const width = 120;
+    const height = Math.max(
+        2,
+        Math.round((image.naturalHeight / Math.max(1, image.naturalWidth)) * width)
+    );
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return null;
+    ctx.drawImage(image, 0, 0, width, height);
+    const data = ctx.getImageData(0, 0, width, height).data;
 
-    // Generate dense grid of particles on the GPU
-    const { positions, uvs, aspect } = useMemo(() => {
-        // Density of points (150x150 max) -> ~22,500 particles vs former 500,000+
-        const width = 180;
-        const img = texture.image as HTMLImageElement;
-        const aspect = img.width / img.height;
-        const height = Math.floor(width / aspect);
-
-        const count = width * height;
-        const positions = new Float32Array(count * 3);
-        const uvs = new Float32Array(count * 2);
-
-        let i = 0;
-        let j = 0;
-        for (let y = 0; y < height; y++) {
-            for (let x = 0; x < width; x++) {
-                positions[i++] = (x / width) - 0.5;
-                positions[i++] = (y / height) - 0.5;
-                positions[i++] = 0;
-
-                uvs[j++] = x / width;
-                uvs[j++] = y / height; // Regular Y for UV in shaders when flipped usually not needed if PlaneGeometry UVs match
+    let step = 2;
+    for (; step < 10; step += 1) {
+        let count = 0;
+        for (let y = 0; y < height; y += step) {
+            for (let x = 0; x < width; x += step) {
+                if (data[(y * width + x) * 4 + 3] > 100) count += 1;
             }
         }
+        if (count <= TARGET_COUNT) break;
+    }
 
-        return { positions, uvs, aspect };
-    }, [texture]);
-
-    const uniforms = useMemo(() => ({
-        uTexture: { value: texture },
-        uTime: { value: 0 },
-        uHoverUv: { value: new THREE.Vector2(0.5, 0.5) },
-        uHoverState: { value: 0 },
-        uAspect: { value: aspect }
-    }), [texture, aspect]);
-
-    useFrame((state) => {
-        if (materialRef.current) {
-            materialRef.current.uniforms.uTime.value = state.clock.elapsedTime;
-            materialRef.current.uniforms.uHoverUv.value.lerp(targetUv.current, 0.1);
-            materialRef.current.uniforms.uHoverState.value = THREE.MathUtils.lerp(
-                materialRef.current.uniforms.uHoverState.value,
-                targetHover.current,
-                0.1
-            );
+    const positions: number[] = [];
+    const seeds: number[] = [];
+    const aspect = width / height;
+    for (let y = 0; y < height; y += step) {
+        for (let x = 0; x < width; x += step) {
+            if (data[(y * width + x) * 4 + 3] <= 100) continue;
+            positions.push((x / width) * 2 - 1, ((y / height) * 2 - 1) * aspect, 0);
+            seeds.push(Math.random());
         }
+    }
+    if (positions.length === 0) return null;
+    return { positions: new Float32Array(positions), seeds: new Float32Array(seeds), aspect };
+}
 
-        if (pointsRef.current) {
-            pointsRef.current.rotation.y = THREE.MathUtils.lerp(pointsRef.current.rotation.y, state.pointer.x * 0.1, 0.05);
-            pointsRef.current.rotation.x = THREE.MathUtils.lerp(pointsRef.current.rotation.x, -state.pointer.y * 0.1, 0.05);
-        }
+const vertexShader = /* glsl */ `
+  attribute float aSeed;
+  uniform float uTime;
+  uniform float uHoverState;
+  uniform vec2 uHover;
+  uniform float uPixelScale;
+  varying float vSeed;
+  void main() {
+    vec3 pos = position;
+    float d = distance(pos.xy, uHover);
+    float push = smoothstep(0.28, 0.0, d) * uHoverState;
+    vec2 dir = normalize(pos.xy - uHover + 0.0001);
+    pos.xy += dir * push * 0.15;
+    pos.xy += vec2(
+      sin(uTime * 1.2 + aSeed * 6.28318),
+      cos(uTime * 0.9 + aSeed * 6.28318)
+    ) * 0.003;
+    vSeed = aSeed;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+    gl_PointSize = (2.4 + aSeed * 1.4) * uPixelScale;
+  }
+`;
+
+const fragmentShader = /* glsl */ `
+  uniform vec3 uColor;
+  uniform vec3 uAccent;
+  varying float vSeed;
+  void main() {
+    vec2 coord = gl_PointCoord - 0.5;
+    float dist = length(coord);
+    if (dist > 0.5) discard;
+    float alpha = smoothstep(0.5, 0.06, dist);
+    vec3 color = mix(uColor, uAccent, step(0.82, vSeed));
+    gl_FragColor = vec4(color, alpha);
+  }
+`;
+
+interface PortraitPointsProps {
+    sample: Sample;
+    colors: { foreground: string; primary: string };
+    boundsRef: React.RefObject<HTMLDivElement | null>;
+}
+
+function PortraitPoints({ sample, colors, boundsRef }: PortraitPointsProps) {
+    const materialRef = useRef<THREE.ShaderMaterial | null>(null);
+    const hover = useRef({ x: 0, y: 0, state: 0 });
+    const target = useRef({ x: 0, y: 0 });
+    const inside = useRef(false);
+
+    useEffect(() => {
+        const element = boundsRef.current;
+        if (!element) return;
+        const onMove = (event: PointerEvent) => {
+            const rect = element.getBoundingClientRect();
+            const insideElement =
+                event.clientX >= rect.left &&
+                event.clientX <= rect.right &&
+                event.clientY >= rect.top &&
+                event.clientY <= rect.bottom;
+            inside.current = insideElement;
+            if (insideElement) {
+                const nx = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                const ny = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
+                target.current.x = nx;
+                target.current.y = ny * sample.aspect;
+            }
+        };
+        const onLeave = () => {
+            inside.current = false;
+        };
+        window.addEventListener("pointermove", onMove, { passive: true });
+        element.addEventListener("pointerleave", onLeave);
+        return () => {
+            window.removeEventListener("pointermove", onMove);
+            element.removeEventListener("pointerleave", onLeave);
+        };
+    }, [boundsRef, sample.aspect]);
+
+    useEffect(() => {
+        const material = materialRef.current;
+        if (!material) return;
+        material.uniforms.uColor.value.set(colors.foreground);
+        material.uniforms.uAccent.value.set(colors.primary);
+    }, [colors.foreground, colors.primary]);
+
+    useFrame((_, delta) => {
+        if (typeof document !== "undefined" && document.hidden) return;
+        const material = materialRef.current;
+        if (!material) return;
+        const step = Math.min(delta, 0.05);
+        hover.current.x = THREE.MathUtils.damp(hover.current.x, target.current.x, 7, step);
+        hover.current.y = THREE.MathUtils.damp(hover.current.y, target.current.y, 7, step);
+        hover.current.state = THREE.MathUtils.damp(
+            hover.current.state,
+            inside.current ? 1 : 0,
+            6,
+            step
+        );
+        material.uniforms.uTime.value += delta;
+        material.uniforms.uHover.value.set(hover.current.x, hover.current.y);
+        material.uniforms.uHoverState.value = hover.current.state;
     });
 
-    // Determine scale to fit within viewport nicely
-    const scale = Math.min(viewport.width * 0.9, viewport.height * 0.9);
-    const scaleX = aspect > 1 ? scale : scale * aspect;
-    const scaleY = aspect > 1 ? scale / aspect : scale;
+    const uniforms = useMemo(
+        () => ({
+            uTime: { value: 0 },
+            uHover: { value: new THREE.Vector2(0, 0) },
+            uHoverState: { value: 0 },
+            uPixelScale: { value: Math.min(window.devicePixelRatio || 1, 2) },
+            uColor: { value: new THREE.Color(colors.foreground) },
+            uAccent: { value: new THREE.Color(colors.primary) },
+        }),
+        [colors.foreground, colors.primary]
+    );
 
-    // Added a slight negative X position to shift the entire image a little to the left
     return (
-        <group scale={[scaleX, scaleY, 1]} position={[1.1, 0, 0]}>
-            <mesh
-                visible={false}
-                onPointerMove={(e) => {
-                    targetHover.current = 1;
-                    if (e.uv) targetUv.current.copy(e.uv);
-                }}
-                onPointerLeave={() => {
-                    targetHover.current = 0;
-                }}
-            >
-                <planeGeometry args={[1, 1]} />
-                <meshBasicMaterial />
-            </mesh>
-
-            <points ref={pointsRef}>
-                <bufferGeometry>
-                    <bufferAttribute
-                        attach="attributes-position"
-                        args={[positions, 3]}
-                    />
-                    <bufferAttribute
-                        attach="attributes-uv"
-                        args={[uvs, 2]}
-                    />
-                </bufferGeometry>
-                <shaderMaterial
-                    ref={materialRef}
-                    transparent={true}
-                    depthWrite={false}
-                    uniforms={uniforms}
-                    vertexShader={`
-                        uniform float uTime;
-                        uniform vec2 uHoverUv;
-                        uniform float uHoverState;
-                        uniform float uAspect;
-                        
-                        varying vec2 vUv;
-                        varying float vVisibility;
-                        
-                        uniform sampler2D uTexture;
-                        
-                        void main() {
-                            vUv = uv;
-                            
-                            vec4 texColor = texture2D(uTexture, vUv);
-                            
-                            // Calculate perceived luminance
-                            float brightness = dot(texColor.rgb, vec3(0.299, 0.587, 0.114));
-                            
-                            // If not hovering, keep visibility high so image looks solid. 
-                            // When hovering, drop dark pixels.
-                            float particleVisibility = smoothstep(0.01, 0.1, brightness);
-                            vVisibility = mix(1.0, particleVisibility, uHoverState);
-                            
-                            vec3 pos = position;
-                            
-                            // Aspect-corrected distance for perfect circular hover area
-                            vec2 aspectUv = uv * vec2(uAspect, 1.0);
-                            vec2 aspectHover = uHoverUv * vec2(uAspect, 1.0);
-                            
-                            float dist = distance(aspectUv, aspectHover);
-                            
-                            // Force field calculation (reduced radius for tighter repel)
-                            float force = smoothstep(0.15, 0.0, dist) * uHoverState;
-                            
-                            vec2 dir = uv - uHoverUv;
-                            if (length(dir) < 0.0001) dir = vec2(1.0, 0.0);
-                            dir = normalize(dir);
-                            
-                            // Push points inward/outward dynamically (reduced distance)
-                            pos.x += dir.x * force * 0.05;
-                            pos.y += dir.y * force * 0.05;
-                            pos.z += force * 0.1; // Pop out towards camera slightly
-                            
-                            // Gentle breathing effect ONLY when particles are active (hovered)
-                            pos.z += sin(pos.x * 20.0 + uTime * 3.0) * 0.01 * brightness * uHoverState;
-                            
-                            vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-                            
-                            // Particle size logic
-                            // baseSize is tuned to tightly pack the points without overlap blowout
-                            float baseSize = 4.0 * (1.0 / -mvPosition.z) * 12.0; 
-                            float hoverSize = (4.0 * brightness + 2.0) * (1.0 / -mvPosition.z) * 12.0;
-                            
-                            gl_PointSize = mix(baseSize, hoverSize, uHoverState);
-                            gl_Position = projectionMatrix * mvPosition;
-                        }
-                    `}
-                    fragmentShader={`
-                        uniform sampler2D uTexture;
-                        uniform float uHoverState;
-                        varying vec2 vUv;
-                        varying float vVisibility;
-                        
-                        void main() {
-                            if (vVisibility < 0.05) discard;
-                            
-                            vec2 coord = gl_PointCoord - vec2(0.5);
-                            float dist = length(coord);
-                            
-                            // When uHoverState is 0, render squares (solid image). 
-                            // When uHoverState is 1, render circles (dist > 0.5 discarded).
-                            float radius = mix(1.0, 0.5, uHoverState);
-                            if (dist > radius) discard; 
-                            
-                            vec4 texColor = texture2D(uTexture, vUv);
-                            
-                            // Radial alpha mask for soft edges on particles
-                            float particleAlpha = 1.0 - smoothstep(0.3, 0.5, dist);
-                            float alpha = mix(1.0, particleAlpha, uHoverState);
-                            
-                            // Color enhancement during particle state
-                            vec3 finalColor = mix(texColor.rgb, texColor.rgb * 1.2, uHoverState);
-                            
-                            gl_FragColor = vec4(finalColor, alpha * texColor.a * vVisibility);
-                        }
-                    `}
-                />
-            </points>
-        </group>
+        <points frustumCulled={false}>
+            <bufferGeometry>
+                <bufferAttribute attach="attributes-position" args={[sample.positions, 3]} />
+                <bufferAttribute attach="attributes-aSeed" args={[sample.seeds, 1]} />
+            </bufferGeometry>
+            <shaderMaterial
+                ref={materialRef}
+                args={[
+                    {
+                        transparent: true,
+                        depthWrite: false,
+                        uniforms,
+                        vertexShader,
+                        fragmentShader,
+                    },
+                ]}
+            />
+        </points>
     );
 }
 
-export function ParticleImage({ src }: ParticleImageProps) {
-    // Mobile fallback to prevent heavy operations
-    if (typeof window !== "undefined" && window.innerWidth < 768) {
-        return (
-            <div className="w-full h-full flex items-center justify-center opacity-80">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt="Hero" className="w-full h-auto object-contain mix-blend-lighten grayscale contrast-125" />
-            </div>
-        );
-    }
+export default function ParticleImage({ className }: { className?: string }) {
+    const { mounted, capable } = useCapable();
+    const tokens = useSignalTokens();
+    const [sample, setSample] = useState<Sample | null>(null);
+    const boundsRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        let alive = true;
+        sampleImage(IMAGE_URL)
+            .then((result) => {
+                if (alive) setSample(result);
+            })
+            .catch(() => {
+                /* the base <Image> layer remains the visual fallback */
+            });
+        return () => {
+            alive = false;
+        };
+    }, []);
+
+    if (!mounted || !capable) return null;
 
     return (
-        <div className="w-full h-full min-h-[400px]">
-            <Canvas
-                camera={{ position: [0, 0, 4.5], fov: 45 }}
-                dpr={[1, 2]}
-                gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
-            >
-                <Suspense fallback={null}>
-                    <Particles src={src} />
-                </Suspense>
-            </Canvas>
+        <div ref={boundsRef} className={className ?? "absolute inset-0"}>
+            {sample && (
+                <Canvas
+                    dpr={[1, 1.5]}
+                    camera={{ position: [0, 0, 3], fov: 45 }}
+                    gl={{ antialias: true, alpha: true }}
+                    style={{ pointerEvents: "none" }}
+                >
+                    <PortraitPoints
+                        sample={sample}
+                        colors={{ foreground: tokens.foreground, primary: tokens.primary }}
+                        boundsRef={boundsRef}
+                    />
+                </Canvas>
+            )}
         </div>
     );
 }
-

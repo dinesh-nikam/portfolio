@@ -1,37 +1,48 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Menu, X, Sun, Moon } from "lucide-react";
+import ThemeToggle from "./theme-toggle";
 
 export function NavigationBar() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [activeSection, setActiveSection] = useState("");
     const { theme, setTheme } = useTheme();
-    const [mounted, setMounted] = useState(false);
+    // true only on the client (after hydration), without a setState-in-effect
+    const mounted = useSyncExternalStore(
+        () => () => {},
+        () => true,
+        () => false
+    );
 
     const pathname = usePathname();
-    const router = useRouter();
+
+    // Close the mobile menu when the route changes — safe "state during render" pattern
+    const [prevPathname, setPrevPathname] = useState(pathname);
+    if (prevPathname !== pathname) {
+        setPrevPathname(pathname);
+        setMobileMenuOpen(false);
+    }
 
     useEffect(() => {
-        setMounted(true);
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 50);
 
             // Basic scroll spy for homepage sections
             if (pathname === "/") {
-                const sections = ["home", "about", "skills", "experience", "projects", "services", "contact"];
+                const sections = ["about", "skills", "experience", "projects", "services", "contact"];
                 let current = "";
 
                 for (const section of sections) {
                     const el = document.getElementById(section);
                     if (el) {
                         const rect = el.getBoundingClientRect();
-                        if (rect.top <= 100 && rect.bottom >= 100) {
+                        if (rect.top <= 120 && rect.bottom >= 120) {
                             current = section;
                             break;
                         }
@@ -42,12 +53,12 @@ export function NavigationBar() {
         };
 
         window.addEventListener("scroll", handleScroll);
-        // Initial check
-        handleScroll();
+        handleScroll(); // Initial check
 
         return () => window.removeEventListener("scroll", handleScroll);
     }, [pathname]);
 
+    // Lock body scroll while the mobile menu is open
     useEffect(() => {
         if (mobileMenuOpen) {
             document.body.style.overflow = "hidden";
@@ -60,34 +71,28 @@ export function NavigationBar() {
     }, [mobileMenuOpen]);
 
     const navLinks = [
-        { name: "Home", href: "/" },
-        { name: "Work", href: "/#work" },
-        { name: "Skills", href: "/#skills" },
-        { name: "Experience", href: "/#experience" },
-        { name: "Writing", href: "/writing" },
-        { name: "Resume", href: "/resume" },
-        { name: "Contact", href: "/contactme" },
+        { name: "Work", href: "/#work", index: "01" },
+        { name: "Skills", href: "/#skills", index: "02" },
+        { name: "Experience", href: "/#experience", index: "03" },
+        { name: "Writing", href: "/writing", index: "04" },
+        { name: "Resume", href: "/resume", index: "05" },
+        { name: "Contact", href: "/contactme", index: "06" },
     ];
 
     const handleNavigation = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
         setMobileMenuOpen(false);
 
-        // Check if it's a hash link
+        // Hash link while already on the homepage → smooth scroll in place
         if (href.includes("#")) {
             const hash = href.split("#")[1];
-
-            // If we are already on the homepage where sections live
             if (pathname === "/") {
                 e.preventDefault();
-                const element = document.getElementById(hash);
-                if (element) element.scrollIntoView({ behavior: "smooth" });
-                // Push silent route update
+                document.getElementById(hash)?.scrollIntoView({ behavior: "smooth" });
                 window.history.pushState(null, "", `/#${hash}`);
-            } else {
-                // Let Next.js Link cleanly handle the transition to /#hash
             }
+            // Otherwise let Next.js Link handle the transition to /#hash
         } else if (href === "/") {
-            // If already on homepage, just scroll to top
+            // Wordmark — scroll back to top when already home
             if (pathname === "/") {
                 e.preventDefault();
                 window.scrollTo({ top: 0, behavior: "smooth" });
@@ -95,20 +100,10 @@ export function NavigationBar() {
         }
     };
 
-    // Helper to determine if link is active
     const isActive = (href: string) => {
-        if (href === "/writing") {
-            return pathname.startsWith("/writing");
-        }
-        if (href === "/resume") {
-            return pathname === "/resume";
-        }
-        if (href === "/contactme") {
-            return pathname === "/contactme";
-        }
-        if (href === "/") {
-            return pathname === "/" && (activeSection === "home" || activeSection === "");
-        }
+        if (href === "/writing") return pathname.startsWith("/writing");
+        if (href === "/resume") return pathname === "/resume";
+        if (href === "/contactme") return pathname === "/contactme";
         if (href.includes("#")) {
             const hash = href.split("#")[1];
             return pathname === "/" && activeSection === hash;
@@ -118,20 +113,33 @@ export function NavigationBar() {
 
     return (
         <motion.header
-            initial={{ y: -100 }}
+            initial={{ y: -80 }}
             animate={{ y: 0 }}
-            transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1], delay: 1.5 }} // Delay until after page load
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled ? "py-4 bg-background/80 backdrop-blur-lg border-b border-border shadow-sm" : "py-8 bg-transparent"
-                }`}
+            transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1], delay: 0.15 }}
+            className={`fixed top-0 left-0 right-0 z-50 border-b transition-all duration-500 ${
+                isScrolled
+                    ? "border-border bg-background/85 py-3 backdrop-blur-md"
+                    : "border-transparent bg-transparent py-5"
+            }`}
         >
-            <nav aria-label="Main Navigation" className="container mx-auto px-6 md:px-12 flex items-center justify-between">
-                {/* Logo / Name */}
-                <Link href="/" onClick={(e) => handleNavigation(e, "/")} className="group relative z-10">
-                    <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70 group-hover:from-blue-400 group-hover:to-blue-500 transition-all duration-300">DN.</span>
+            <nav aria-label="Main Navigation" className="container mx-auto flex items-center justify-between px-6 md:px-12">
+                {/* Wordmark */}
+                <Link
+                    href="/"
+                    onClick={(e) => handleNavigation(e, "/")}
+                    className="group relative z-10 flex items-center gap-3"
+                >
+                    <span className="font-mono text-sm font-semibold uppercase tracking-[0.22em] text-foreground">
+                        <span
+                            className="mr-2.5 inline-block h-2 w-2 bg-primary transition-transform duration-300 group-hover:rotate-45"
+                            aria-hidden
+                        />
+                        Dinesh&nbsp;Nikam
+                    </span>
                 </Link>
 
-                {/* Desktop Nav */}
-                <div className="hidden md:flex items-center gap-1 bg-foreground/5 backdrop-blur-md border border-foreground/10 p-1.5 rounded-full px-4">
+                {/* Desktop nav */}
+                <div className="hidden items-center gap-1 md:flex">
                     {navLinks.map((link) => {
                         const active = isActive(link.href);
                         return (
@@ -139,92 +147,92 @@ export function NavigationBar() {
                                 key={link.name}
                                 href={link.href}
                                 onClick={(e) => handleNavigation(e, link.href)}
-                                className={`relative px-4 py-2 text-sm font-medium transition-colors duration-300 z-10 ${active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-                                    }`}
+                                aria-current={active ? "true" : undefined}
+                                className={`relative flex items-center gap-1.5 px-3 py-2 font-mono text-[11px] uppercase tracking-[0.18em] transition-colors duration-300 ${
+                                    active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                                }`}
                             >
+                                <span className={active ? "text-primary" : "text-muted-foreground/70"}>{link.index}</span>
+                                {link.name}
                                 {active && (
                                     <motion.div
-                                        layoutId="active-nav"
-                                        className="absolute inset-0 bg-foreground/10 rounded-full -z-10"
-                                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                                        layoutId="nav-active"
+                                        className="absolute inset-x-3 -bottom-2 h-px bg-primary"
+                                        transition={{ type: "spring", stiffness: 380, damping: 32 }}
                                     />
                                 )}
-                                {link.name}
                             </Link>
                         );
                     })}
 
-                    <div className="w-[1px] h-4 bg-foreground/20 mx-2" />
-
-                    {/* Theme Toggle */}
-                    {mounted && (
-                        <button
-                            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                            className="text-muted-foreground hover:text-foreground p-2 rounded-full hover:bg-foreground/10 transition-colors"
-                            aria-label="Toggle Theme"
-                        >
-                            {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-                        </button>
-                    )}
+                    {/* Theme toggle — bordered square, GSAP icon crossfade */}
+                    <ThemeToggle />
                 </div>
 
-                {/* Mobile Toggle */}
+                {/* Mobile toggle */}
                 <button
-                    className="md:hidden z-50 relative p-2 text-foreground bg-foreground/5 border border-foreground/10 rounded-full"
+                    className="relative z-50 border border-border bg-background p-2 text-foreground md:hidden"
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                    aria-label="Toggle Menu"
+                    aria-label="Toggle menu"
                     aria-expanded={mobileMenuOpen}
                     aria-controls="mobile-menu"
                 >
-                    {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                    {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
                 </button>
             </nav>
 
-            {/* Mobile Menu */}
+            {/* Mobile menu — full-bleed editorial index */}
             <AnimatePresence>
                 {mobileMenuOpen && (
                     <motion.div
                         id="mobile-menu"
                         role="dialog"
                         aria-modal="true"
-                        aria-label="Mobile Navigation"
-                        initial={{ opacity: 0, scale: 0.95, y: -20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: -20 }}
-                        transition={{ duration: 0.2, ease: "easeInOut" }}
-                        className="fixed inset-0 z-40 bg-background/95 backdrop-blur-xl flex flex-col items-center justify-center gap-8 md:hidden pt-20"
+                        aria-label="Mobile navigation"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.25, ease: "easeInOut" }}
+                        className="fixed inset-0 z-40 flex flex-col justify-center gap-2 bg-background px-8 pt-20 md:hidden"
                     >
                         {navLinks.map((link, i) => (
                             <motion.div
                                 key={link.name}
-                                initial={{ opacity: 0, y: 20 }}
+                                initial={{ opacity: 0, y: 24 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: i * 0.1 }}
+                                transition={{ delay: 0.08 + i * 0.06, duration: 0.4, ease: [0.76, 0, 0.24, 1] }}
                             >
                                 <Link
                                     href={link.href}
                                     onClick={(e) => handleNavigation(e, link.href)}
-                                    className={`text-4xl font-light transition-colors ${isActive(link.href) ? "text-blue-500 font-medium" : "text-foreground hover:text-muted-foreground"
-                                        }`}
+                                    className={`group flex items-baseline gap-4 border-b border-border py-5 ${
+                                        isActive(link.href) ? "text-primary" : "text-foreground"
+                                    }`}
                                 >
-                                    {link.name}
+                                    <span className="font-mono text-[11px] text-muted-foreground">{link.index}</span>
+                                    <span className="font-display text-4xl tracking-tight transition-transform duration-300 group-hover:translate-x-2">
+                                        {link.name}
+                                    </span>
                                 </Link>
                             </motion.div>
                         ))}
 
-                        {/* Theme Toggle Mobile */}
                         {mounted && (
                             <motion.button
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                transition={{ delay: 0.5 }}
+                                transition={{ delay: 0.55 }}
                                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                                className="mt-8 flex items-center gap-3 px-6 py-3 rounded-full bg-foreground/5 border border-foreground/10 text-sm uppercase tracking-widest text-muted-foreground active:scale-95 transition-all"
+                                className="mt-10 flex w-max items-center gap-3 font-mono text-xs uppercase tracking-[0.25em] text-muted-foreground"
                             >
                                 {theme === "dark" ? (
-                                    <><Sun className="w-4 h-4 text-blue-500" /> Light Mode</>
+                                    <>
+                                        <Sun className="h-4 w-4 text-primary" /> Light Mode
+                                    </>
                                 ) : (
-                                    <><Moon className="w-4 h-4" /> Dark Mode</>
+                                    <>
+                                        <Moon className="h-4 w-4" /> Dark Mode
+                                    </>
                                 )}
                             </motion.button>
                         )}

@@ -1,73 +1,142 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import gsap from "gsap";
+import { markPageRevealed, sessionAlreadyLoaded } from "@/lib/page-reveal";
 
-export function PageLoad() {
-    const [isLoading, setIsLoading] = useState(true);
-    const [count, setCount] = useState(0);
+const PRELOAD_DURATION = 1.35;
+
+export default function PageLoad() {
+    const [visible, setVisible] = useState(false);
+    const [done, setDone] = useState(false);
+    const rootRef = useRef<HTMLDivElement | null>(null);
+    const counterRef = useRef<HTMLSpanElement | null>(null);
+    const counterWrapRef = useRef<HTMLDivElement | null>(null);
+    const progressRef = useRef<HTMLDivElement | null>(null);
+    const topRef = useRef<HTMLDivElement | null>(null);
+    const bottomRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
-        // Fast counter that feels premium
-        const interval = setInterval(() => {
-            setCount((prev) => {
-                if (prev >= 100) {
-                    clearInterval(interval);
-                    return 100;
-                }
-                // Random elegant easing for the numbers
-                return prev + Math.floor(Math.random() * 5) + 1;
-            });
-        }, 20);
-
-        const timer = setTimeout(() => {
-            setIsLoading(false);
-            window.scrollTo(0, 0);
-        }, 1500); // Shorter load time
-
-        return () => {
-            clearTimeout(timer);
-            clearInterval(interval);
-        };
+        const id = requestAnimationFrame(() => setVisible(true));
+        return () => cancelAnimationFrame(id);
     }, []);
 
-    return (
-        <AnimatePresence>
-            {isLoading && (
-                <motion.div
-                    key="loader"
-                    initial={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1] }}
-                    // Slow cinematic fade out instead of sliding
-                    className="fixed inset-0 z-[99999] bg-background text-foreground flex items-center justify-center"
-                >
-                    <div className="absolute inset-0 noise-overlay opacity-[0.02]" />
+    useEffect(() => {
+        if (!visible) return;
+        const root = rootRef.current;
+        const top = topRef.current;
+        const bottom = bottomRef.current;
+        const counterWrap = counterWrapRef.current;
+        if (!root || !top || !bottom || !counterWrap) return;
 
-                    {/* Minimalist percentage counter */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1, duration: 0.8 }}
-                        className="relative z-10 flex flex-col items-center justify-center font-mono"
-                    >
-                        <span className="text-[10vw] md:text-8xl font-light tracking-tighter">
-                            {count < 10 && "00"}
-                            {count >= 10 && count < 100 && "0"}
-                            {count}
-                            <span className="text-xl md:text-2xl text-muted-foreground">%</span>
-                        </span>
-                        <motion.span
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.5 }}
-                            className="text-xs tracking-[0.2em] uppercase mt-4 text-muted-foreground"
-                        >
-                            Loading Experience
-                        </motion.span>
-                    </motion.div>
-                </motion.div>
-            )}
-        </AnimatePresence>
+        const reducedMotion = window.matchMedia(
+            "(prefers-reduced-motion: reduce)"
+        ).matches;
+
+        if (reducedMotion || sessionAlreadyLoaded()) {
+            markPageRevealed();
+            const id = requestAnimationFrame(() => setDone(true));
+            return () => cancelAnimationFrame(id);
+        }
+
+        document.documentElement.classList.add("preload-lock");
+        root.style.pointerEvents = "auto";
+
+        const counter = { value: 0 };
+        const timeline = gsap.timeline();
+        timeline
+            .to(
+                counter,
+                {
+                    value: 100,
+                    duration: PRELOAD_DURATION,
+                    ease: "power2.inOut",
+                    onUpdate: () => {
+                        if (counterRef.current) {
+                            counterRef.current.textContent = String(
+                                Math.round(counter.value)
+                            ).padStart(3, "0");
+                        }
+                    },
+                },
+                0
+            )
+            .to(
+                progressRef.current,
+                {
+                    scaleX: 1,
+                    duration: PRELOAD_DURATION,
+                    ease: "power2.inOut",
+                },
+                0
+            )
+            .to(counterWrap, {
+                opacity: 0,
+                duration: 0.2,
+                ease: "power1.out",
+            }, PRELOAD_DURATION - 0.12)
+            .add(() => {
+                root.style.pointerEvents = "none";
+                markPageRevealed();
+            }, PRELOAD_DURATION - 0.12)
+            .to(
+                top,
+                { yPercent: -101, duration: 0.75, ease: "power4.inOut" },
+                PRELOAD_DURATION - 0.1
+            )
+            .to(
+                bottom,
+                { yPercent: 101, duration: 0.75, ease: "power4.inOut" },
+                PRELOAD_DURATION - 0.1
+            )
+            .add(() => {
+                document.documentElement.classList.remove("preload-lock");
+                setDone(true);
+            }, "+=0.05");
+
+        return () => {
+            timeline.kill();
+            document.documentElement.classList.remove("preload-lock");
+        };
+    }, [visible]);
+
+    if (!visible || done) return null;
+
+    return (
+        <div
+            ref={rootRef}
+            className="pointer-events-none fixed inset-0 z-[250]"
+            aria-hidden="true"
+        >
+            <div
+                ref={topRef}
+                className="absolute inset-x-0 top-0 h-1/2 border-b border-border bg-background"
+            >
+                <div className="noise-overlay absolute inset-0" />
+            </div>
+            <div
+                ref={bottomRef}
+                className="absolute inset-x-0 bottom-0 h-1/2 bg-background"
+            >
+                <div className="noise-overlay absolute inset-0" />
+            </div>
+            <div
+                ref={counterWrapRef}
+                className="absolute inset-0 flex flex-col items-center justify-center gap-4"
+            >
+                <span
+                    ref={counterRef}
+                    className="font-mono text-5xl tabular-nums tracking-tight text-foreground sm:text-6xl"
+                >
+                    000
+                </span>
+                <div className="h-px w-40 overflow-hidden bg-border">
+                    <div
+                        ref={progressRef}
+                        className="h-full w-full origin-left scale-x-0 bg-primary"
+                    />
+                </div>
+            </div>
+        </div>
     );
 }

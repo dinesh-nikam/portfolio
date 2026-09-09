@@ -66,11 +66,13 @@ export function AnalyticsTracker() {
 
     // Heartbeat interval for time-on-site logic
     useEffect(() => {
-        if (typeof window === "undefined" || trackingInitialized.current) return;
-        trackingInitialized.current = true;
+        if (typeof window === "undefined") return;
 
         // Initial heartbeat on full page load to establish session and visitor profile
-        trackHeartbeat();
+        if (!trackingInitialized.current) {
+            trackingInitialized.current = true;
+            trackHeartbeat();
+        }
 
         let interval: NodeJS.Timeout | null = null;
 

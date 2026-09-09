@@ -64,8 +64,8 @@ export function ContactForm() {
             setIsSuccess(true);
             setFormData({ name: "", email: "", project: "", message: "" });
             setTimeout(() => setIsSuccess(false), 5000);
-        } catch (err: any) {
-            setError(err.message || "An unexpected error occurred");
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "An unexpected error occurred");
         } finally {
             setIsSubmitting(false);
         }
@@ -78,9 +78,7 @@ export function ContactForm() {
             transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
             className="w-full relative group"
         >
-            {/* Removed neon background glow */}
-
-            <form onSubmit={handleSubmit} className="relative flex flex-col space-y-6 bg-black/40 backdrop-blur-xl border border-white/10 p-8 rounded-2xl shadow-2xl">
+            <form onSubmit={handleSubmit} className="relative flex flex-col space-y-6 bg-card border border-border p-8 rounded-md shadow-xl">
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="relative group/field">
@@ -90,10 +88,10 @@ export function ContactForm() {
                             id="name"
                             value={formData.name}
                             onChange={handleChange}
-                            className="peer w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 pt-6 text-white outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all duration-300"
+                            className="peer w-full bg-muted/30 border border-border rounded-md px-4 py-3.5 pt-6 text-foreground outline-none focus:border-primary/50 focus:bg-muted/50 transition-all duration-300"
                             placeholder=" "
                         />
-                        <label htmlFor="name" className="absolute left-4 top-2 text-xs font-medium text-muted-foreground uppercase tracking-wider peer-focus:text-blue-500 peer-focus:-translate-y-0.5 peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:normal-case peer-placeholder-shown:text-white/50 transition-all duration-300 pointer-events-none">
+                        <label htmlFor="name" className="absolute left-4 top-2 text-xs font-medium text-muted-foreground uppercase tracking-wider peer-focus:text-primary peer-focus:-translate-y-0.5 peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:normal-case peer-placeholder-shown:text-muted-foreground transition-all duration-300 pointer-events-none">
                             Your Name
                         </label>
                     </div>
@@ -105,10 +103,10 @@ export function ContactForm() {
                             id="email"
                             value={formData.email}
                             onChange={handleChange}
-                            className="peer w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 pt-6 text-white outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all duration-300"
+                            className="peer w-full bg-muted/30 border border-border rounded-md px-4 py-3.5 pt-6 text-foreground outline-none focus:border-primary/50 focus:bg-muted/50 transition-all duration-300"
                             placeholder=" "
                         />
-                        <label htmlFor="email" className="absolute left-4 top-2 text-xs font-medium text-muted-foreground uppercase tracking-wider peer-focus:text-blue-500 peer-focus:-translate-y-0.5 peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:normal-case peer-placeholder-shown:text-white/50 transition-all duration-300 pointer-events-none">
+                        <label htmlFor="email" className="absolute left-4 top-2 text-xs font-medium text-muted-foreground uppercase tracking-wider peer-focus:text-primary peer-focus:-translate-y-0.5 peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:normal-case peer-placeholder-shown:text-muted-foreground transition-all duration-300 pointer-events-none">
                             Email Address
                         </label>
                     </div>
@@ -120,10 +118,10 @@ export function ContactForm() {
                         id="project"
                         value={formData.project}
                         onChange={handleChange}
-                        className="peer w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 pt-6 text-white outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all duration-300"
+                        className="peer w-full bg-muted/30 border border-border rounded-md px-4 py-3.5 pt-6 text-foreground outline-none focus:border-primary/50 focus:bg-muted/50 transition-all duration-300"
                         placeholder=" "
                     />
-                    <label htmlFor="project" className="absolute left-4 top-2 text-xs font-medium text-muted-foreground uppercase tracking-wider peer-focus:text-blue-500 peer-focus:-translate-y-0.5 peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:normal-case peer-placeholder-shown:text-white/50 transition-all duration-300 pointer-events-none">
+                    <label htmlFor="project" className="absolute left-4 top-2 text-xs font-medium text-muted-foreground uppercase tracking-wider peer-focus:text-primary peer-focus:-translate-y-0.5 peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:normal-case peer-placeholder-shown:text-muted-foreground transition-all duration-300 pointer-events-none">
                         Project Type / Subject
                     </label>
                 </div>
@@ -135,16 +133,16 @@ export function ContactForm() {
                         rows={4}
                         value={formData.message}
                         onChange={handleChange}
-                        className="peer w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 pt-6 text-white outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all duration-300 resize-none"
+                        className="peer w-full bg-muted/30 border border-border rounded-md px-4 py-3.5 pt-6 text-foreground outline-none focus:border-primary/50 focus:bg-muted/50 transition-all duration-300 resize-none"
                         placeholder=" "
                     />
-                    <label htmlFor="message" className="absolute left-4 top-2 text-xs font-medium text-muted-foreground uppercase tracking-wider peer-focus:text-blue-500 peer-focus:-translate-y-0.5 peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:normal-case peer-placeholder-shown:text-white/50 transition-all duration-300 pointer-events-none">
+                    <label htmlFor="message" className="absolute left-4 top-2 text-xs font-medium text-muted-foreground uppercase tracking-wider peer-focus:text-primary peer-focus:-translate-y-0.5 peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:normal-case peer-placeholder-shown:text-muted-foreground transition-all duration-300 pointer-events-none">
                         How can we help?
                     </label>
                 </div>
 
                 {error && (
-                    <div className="flex items-center gap-2 text-red-400 bg-red-400/10 border border-red-400/20 p-3 rounded-lg text-sm">
+                    <div className="flex items-center gap-2 text-red-400 bg-red-400/10 border border-red-400/20 p-3 rounded-md text-sm">
                         <AlertCircle className="w-5 h-5 flex-shrink-0" />
                         <p>{error}</p>
                     </div>
@@ -153,10 +151,8 @@ export function ContactForm() {
                 <button
                     type="submit"
                     disabled={isSubmitting || isSuccess}
-                    className="group/btn relative w-full flex items-center justify-center gap-3 overflow-hidden rounded-xl bg-white text-black px-6 py-4 font-semibold hover:bg-white/90 transition-all duration-300 disabled:opacity-80"
+                    className="group/btn relative w-full flex items-center justify-center gap-3 overflow-hidden rounded-md bg-primary text-primary-foreground px-6 py-4 font-semibold hover:bg-primary/90 transition-all duration-300 disabled:opacity-80"
                 >
-                    <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-500 to-blue-600 opacity-0 group-hover/btn:opacity-10 transition-opacity duration-300"></div>
-
                     <span className="relative z-10 flex items-center justify-center gap-2">
                         {isSubmitting ? (
                             <>

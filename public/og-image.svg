@@ -1,0 +1,27 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a0a0a" />
+      <stop offset="100%" stop-color="#1a1a1a" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bgGrad)" />
+  <text x="80" y="120" font-family="Geometria, Bodoni Moda, Georgia, serif" font-size="56" font-weight="400" fill="#ffffff" letter-spacing="-0.5">
+    Dinesh Nikam
+  </text>
+  <text x="80" y="200" font-family="Geometria, Bodoni Moda, Georgia, serif" font-size="56" font-weight="700" fill="#ffffff" letter-spacing="-0.5">
+    Full Stack Developer
+  </text>
+  <text x="80" y="300" font-family="Schibsted Grotesk, system-ui, sans-serif" font-size="24" fill="#a1a1aa" letter-spacing="0.5">
+    Code &middot; Motion &middot; Cloud
+  </text>
+  <text x="80" y="360" font-family="Schibsted Grotesk, system-ui, sans-serif" font-size="18" fill="#52525b" letter-spacing="1">
+    React &middot; Next.js &middot; AWS &middot; Node.js &middot; WebGL
+  </text>
+  <circle cx="1050" cy="500" r="40" fill="none" stroke="#a1a1aa" stroke-width="1" opacity="0.3" />
+  <path d="M1050 470 L1050 500" stroke="#a1a1aa" stroke-width="1" opacity="0.3" />
+  <path d="M1040 500 L1050 500" stroke="#a1a1aa" stroke-width="1" opacity="0.3" />
+  <rect x="100" y="440" width="840" height="4" fill="#27272a" />
+  <rect x="100" y="448" width="120" height="2" fill="#a1a1aa" opacity="0.5" />
+  <rect x="100" y="454" width="80" height="2" fill="#a1a1aa" opacity="0.3" />
+</svg>

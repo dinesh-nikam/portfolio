@@ -14,7 +14,7 @@ export function SkillsEvolution() {
     const y = useTransform(scrollYProgress, [0, 1], [50, -50]);
 
     return (
-        <section ref={containerRef} className="w-full max-w-6xl mx-auto py-24 px-6 relative overflow-hidden">
+        <section ref={containerRef} className="w-full max-w-6xl mx-auto py-24 px-6 relative">
             <div className="flex flex-col items-center mb-16">
                 <motion.h2
                     initial={{ opacity: 0, y: 20 }}
@@ -47,10 +47,8 @@ export function SkillsEvolution() {
                         viewport={{ once: true, margin: "-50px" }}
                         transition={{ duration: 0.5, delay: idx * 0.1 }}
                     >
-                        {/* Removed Interactive Radial Gradient */}
-
-                        <h3 className="text-xl font-semibold text-white mb-6 relative z-10 flex items-center gap-3">
-                            <span className="w-2 h-2 rounded-full bg-blue-500" />
+                        <h3 className="text-xl font-semibold text-foreground mb-6 relative z-10 flex items-center gap-3">
+                            <span className="w-2 h-2 rounded-full bg-primary" />
                             {category.category}
                         </h3>
 
@@ -58,7 +56,7 @@ export function SkillsEvolution() {
                             {category.skills.map((skill, sIdx) => (
                                 <span
                                     key={sIdx}
-                                    className="px-3 py-1.5 text-sm font-medium rounded-full bg-white/5 text-muted-foreground border border-white/5 group-hover:bg-blue-500/10 group-hover:text-blue-300 group-hover:border-blue-500/30 transition-colors"
+                                    className="px-3 py-1.5 text-sm font-medium rounded-full bg-muted/30 text-muted-foreground border border-border/70 hover:bg-primary/10 hover:text-primary hover:border-primary/40 transition-colors"
                                 >
                                     {skill}
                                 </span>
@@ -67,22 +65,6 @@ export function SkillsEvolution() {
                     </motion.div>
                 ))}
             </motion.div>
-
-            {/* Background Decorative Lines */}
-            <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
-                <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="line-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stopColor="transparent" />
-                            <stop offset="50%" stopColor="#3B82F6" />
-                            <stop offset="100%" stopColor="transparent" />
-                        </linearGradient>
-                    </defs>
-                    {/* Horizontal connection paths */}
-                    <path d="M 0 300 Q 400 200 800 300 T 1600 300" fill="none" stroke="url(#line-gradient)" strokeWidth="1" className="animate-[dash_10s_linear_infinite]" strokeDasharray="10 10" />
-                    <path d="M 0 400 Q 400 500 800 400 T 1600 400" fill="none" stroke="url(#line-gradient)" strokeWidth="1" className="animate-[dash_15s_linear_infinite_reverse]" strokeDasharray="10 10" />
-                </svg>
-            </div>
         </section>
     );
 }

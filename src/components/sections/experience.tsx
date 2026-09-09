@@ -59,9 +59,9 @@ function CareerProgressIndicator({ scrollYProgress }: { scrollYProgress: MotionV
             style={{ opacity }}
             className="absolute left-0 md:left-8 top-0 bottom-0 w-[1px] hidden md:block z-0"
         >
-            <div className="w-full h-full bg-border/30 absolute" />
+            <div className="w-full h-full bg-border/40 absolute" />
             <motion.div
-                className="w-full bg-gradient-to-b from-primary/50 via-foreground/50 to-transparent origin-top shadow-[0_0_15px_rgba(255,255,255,0.3)]"
+                className="w-full bg-gradient-to-b from-primary via-primary/40 to-transparent origin-top"
                 style={{ scaleY, height: "100%" }}
             />
         </motion.div>
@@ -78,13 +78,13 @@ function ExperienceCard({ experience, index }: { experience: typeof experiences[
             className="group relative md:ml-24"
         >
             {/* Connection line to main progress bar (desktop only) */}
-            <div className="hidden md:block absolute -left-16 top-12 w-16 h-[1px] bg-border/30 group-hover:bg-foreground/50 transition-colors duration-500 z-0 origin-left scale-x-0 group-hover:scale-x-100" />
+            <div className="hidden md:block absolute -left-16 top-12 w-16 h-[1px] bg-border/40 group-hover:bg-primary/50 transition-colors duration-500 z-0 origin-left scale-x-0 group-hover:scale-x-100" />
 
-            {/* Glassmorphic Card */}
-            <div className="relative z-10 p-8 md:p-12 rounded-[2rem] bg-white/[0.02] border border-white/5 backdrop-blur-md overflow-hidden transition-all duration-700 hover:bg-white/[0.04] hover:border-white/10 hover:shadow-[0_0_40px_-10px_rgba(255,255,255,0.05)] hover:-translate-y-2">
+            {/* Card */}
+            <div className="relative z-10 p-8 md:p-12 rounded-md bg-card border border-border overflow-hidden transition-all duration-700 hover:border-primary/40 hover:-translate-y-2">
 
                 {/* Glow effect on hover */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-br from-foreground/5 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
 
                 <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
 
@@ -93,7 +93,7 @@ function ExperienceCard({ experience, index }: { experience: typeof experiences[
                         <span className="font-mono text-sm tracking-widest text-muted-foreground uppercase">
                             {experience.period}
                         </span>
-                        <h3 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground/80 mt-2">
+                        <h3 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mt-2">
                             {experience.company}
                         </h3>
                     </div>
@@ -114,7 +114,7 @@ function ExperienceCard({ experience, index }: { experience: typeof experiences[
                                 {experience.tech.map((techItem, techIndex) => (
                                     <span
                                         key={techIndex}
-                                        className="px-4 py-2 text-sm font-medium rounded-full bg-white/[0.03] border border-white/10 text-muted-foreground transition-colors duration-300 group-hover:text-foreground group-hover:border-white/20"
+                                        className="px-4 py-2 text-sm font-medium rounded-full bg-muted/30 border border-border/70 text-muted-foreground transition-colors duration-300 group-hover:text-foreground group-hover:border-primary/40"
                                     >
                                         {techItem}
                                     </span>

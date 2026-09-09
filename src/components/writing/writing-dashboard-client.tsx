@@ -5,18 +5,37 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Search } from 'lucide-react';
 
-function ArticleCard({ article, featured = false }: { article: any; featured?: boolean }) {
+interface Article {
+    id: string;
+    title: string;
+    slug: string;
+    excerpt: string;
+    category: string;
+    readingTime: number;
+    publishedAt: Date | null;
+    featured: boolean;
+}
+
+function formatArticleDate(publishedAt: Date | null, options: Intl.DateTimeFormatOptions): string {
+    return publishedAt ? new Date(publishedAt).toLocaleDateString('en-US', options) : '—';
+}
+
+function formatArticleYear(publishedAt: Date | null): number | null {
+    return publishedAt ? new Date(publishedAt).getFullYear() : null;
+}
+
+function ArticleCard({ article, featured = false }: { article: Article; featured?: boolean }) {
     return (
         <Link href={`/writing/${article.slug}`}>
             <motion.article
                 whileHover={{ y: -5 }}
-                className={`group relative flex flex-col justify-between p-6 md:p-8 rounded-2xl border border-foreground/10 bg-background/40 backdrop-blur-md overflow-hidden transition-all hover:bg-foreground/5 hover:border-foreground/20 ${featured ? 'md:flex-row gap-8 lg:p-12 mb-12' : 'h-full gap-6'}`}
+                className={`group relative flex flex-col justify-between p-6 md:p-8 rounded-md border border-border bg-card overflow-hidden transition-colors hover:bg-muted/30 hover:border-primary/40 ${featured ? 'md:flex-row gap-8 lg:p-12 mb-12' : 'h-full gap-6'}`}
             >
                 <div className="flex flex-col gap-4 flex-1">
                     <div className="flex items-center gap-3 text-xs font-mono text-muted-foreground">
-                        <span className="px-2.5 py-1 rounded-full bg-foreground/10 text-foreground/80">{article.category}</span>
+                        <span className="px-2.5 py-1 rounded-full bg-muted/30 border border-border/70 text-foreground/80">{article.category}</span>
                         <span>•</span>
-                        <span>{new Date(article.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                        <span>{formatArticleDate(article.publishedAt, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                         <span>•</span>
                         <span>{article.readingTime} min read</span>
                     </div>
@@ -35,7 +54,7 @@ function ArticleCard({ article, featured = false }: { article: any; featured?: b
     );
 }
 
-export function WritingDashboardClient({ articles }: { articles: any[] }) {
+export function WritingDashboardClient({ articles }: { articles: Article[] }) {
     const [activeCategory, setActiveCategory] = useState<string>('All');
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -59,11 +78,12 @@ export function WritingDashboardClient({ articles }: { articles: any[] }) {
 
     // Group by year for timeline
     const articlesByYear = gridArticles.reduce((acc, article) => {
-        const year = new Date(article.publishedAt).getFullYear();
+        const year = formatArticleYear(article.publishedAt);
+        if (year === null) return acc;
         if (!acc[year]) acc[year] = [];
         acc[year].push(article);
         return acc;
-    }, {} as Record<string, any[]>);
+    }, {} as Record<string, Article[]>);
 
     const years = Object.keys(articlesByYear).sort((a, b) => Number(b) - Number(a));
 
@@ -96,9 +116,9 @@ export function WritingDashboardClient({ articles }: { articles: any[] }) {
                             <button
                                 key={cat}
                                 onClick={() => setActiveCategory(cat)}
-                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${activeCategory === cat
+                                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeCategory === cat
                                     ? 'bg-foreground text-background'
-                                    : 'bg-foreground/5 text-muted-foreground hover:bg-foreground/10 hover:text-foreground'
+                                    : 'bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground'
                                     }`}
                             >
                                 {cat}
@@ -113,7 +133,7 @@ export function WritingDashboardClient({ articles }: { articles: any[] }) {
                             placeholder="Search articles..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2.5 bg-foreground/5 border border-foreground/10 rounded-full text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground/30 focus:bg-foreground/10 transition-all text-foreground"
+                            className="w-full pl-10 pr-4 py-2.5 bg-muted/30 border border-border rounded-full text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:bg-background transition-colors text-foreground"
                         />
                     </div>
                 </motion.div>
@@ -160,13 +180,13 @@ export function WritingDashboardClient({ articles }: { articles: any[] }) {
                                 <div key={year} className="flex flex-col md:flex-row gap-8 md:gap-16">
                                     <h3 className="text-4xl font-light text-foreground/20 md:w-32 shrink-0">{year}</h3>
                                     <div className="flex flex-col gap-6 w-full">
-                                        {articlesByYear[year].map((article: any) => (
+                                        {articlesByYear[year].map((article: Article) => (
                                             <Link key={article.id} href={`/writing/${article.slug}`} className="group flex flex-col sm:flex-row sm:items-baseline justify-between gap-4 py-4 border-b border-foreground/5 hover:border-foreground/20 transition-colors">
                                                 <h4 className="text-lg font-medium text-foreground/80 group-hover:text-foreground transition-colors">
                                                     {article.title}
                                                 </h4>
                                                 <span className="text-sm font-mono text-muted-foreground shrink-0">
-                                                    {new Date(article.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                                    {formatArticleDate(article.publishedAt, { month: 'short', day: 'numeric' })}
                                                 </span>
                                             </Link>
                                         ))}
@@ -188,7 +208,7 @@ export function WritingDashboardClient({ articles }: { articles: any[] }) {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="max-w-2xl mx-auto mt-24 p-8 md:p-12 rounded-3xl border border-foreground/10 bg-gradient-to-br from-foreground/5 to-transparent text-center"
+                    className="max-w-2xl mx-auto mt-24 p-8 md:p-12 rounded-md border border-border bg-card text-center"
                 >
                     <h2 className="text-2xl font-medium mb-4">Join the Newsletter</h2>
                     <p className="text-muted-foreground mb-8 max-w-md mx-auto">
@@ -199,9 +219,9 @@ export function WritingDashboardClient({ articles }: { articles: any[] }) {
                             type="email"
                             required
                             placeholder="Your email address"
-                            className="flex-1 px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground/30"
+                            className="flex-1 px-4 py-3 bg-muted/30 border border-border rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 transition-colors"
                         />
-                        <button type="submit" className="px-6 py-3 bg-foreground text-background font-medium rounded-lg hover:scale-[1.02] active:scale-[0.98] transition-transform">
+                        <button type="submit" className="px-6 py-3 bg-primary text-primary-foreground hover:bg-primary/90 font-medium rounded-md transition-colors">
                             Subscribe
                         </button>
                     </form>

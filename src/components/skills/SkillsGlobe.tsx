@@ -1,200 +1,151 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
-import React, { useRef, useState, useMemo } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Sphere, Html, Preload, Line } from "@react-three/drei";
+import { useMemo, useState } from "react";
 import * as THREE from "three";
-import { allSkills } from "./constants";
-import { motion, AnimatePresence } from "framer-motion";
+import { Canvas } from "@react-three/fiber";
+import { Html, Line, OrbitControls, Sparkles } from "@react-three/drei";
+import { useSignalTokens } from "@/lib/signal-tokens";
 
-type Skill = typeof allSkills[0];
+/* Tech constellation — skill names orbit a wireframe ink globe on a Fibonacci
+   lattice. Hovering a chip pulls a vermilion thread from the core to it. Drag
+   to orbit; the globe keeps drifting on its own. */
 
-function SkillNode({ skill, position }: { skill: Skill, position: THREE.Vector3 }) {
-    const [hovered, setHovered] = useState(false);
-
-    // Dynamic line points (from center to node position)
-    const linePoints = useMemo(() => {
-        return [new THREE.Vector3(0, 0, 0), position];
-    }, [position]);
-
-    return (
-        <group position={position}>
-            {/* Connection Line */}
-            {hovered ? (
-                <Line
-                    points={linePoints}
-                    color="#3b82f6"
-                    lineWidth={2}
-                    transparent
-                    opacity={0.8}
-                    dashed={false}
-                />
-            ) : (
-                <Line
-                    points={linePoints}
-                    color="#1e293b"
-                    lineWidth={1}
-                    transparent
-                    opacity={0.15}
-                />
-            )}
-
-            <Html center zIndexRange={[100, 0]}>
-                <div
-                    className="relative group cursor-pointer"
-                    onMouseEnter={() => setHovered(true)}
-                    onMouseLeave={() => setHovered(false)}
-                >
-                    <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center backdrop-blur-md border transition-all duration-300 ${hovered ? 'bg-blue-900/80 border-blue-400 scale-125 shadow-[0_4px_20px_rgba(59,130,246,0.3)] z-50' : 'bg-black/60 border-white/10 hover:bg-white/10'}`}>
-                        <img src={skill.icon} alt={skill.name} className="w-5 h-5 md:w-6 md:h-6 object-contain pointer-events-none" crossOrigin="anonymous" />
-                    </div>
-
-                    {/* Hover Card */}
-                    <AnimatePresence>
-                        {hovered && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 10, scale: 0.9 }}
-                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                exit={{ opacity: 0, y: 10, scale: 0.9 }}
-                                className="absolute top-14 left-1/2 -translate-x-1/2 w-48 bg-black/80 backdrop-blur-xl border border-blue-500/50 rounded-xl p-4 shadow-[0_4px_20px_rgba(59,130,246,0.2)] pointer-events-none z-50 text-center"
-                            >
-                                <h4 className="text-white font-bold text-lg mb-1">{skill.name}</h4>
-                                <div className="text-blue-400 text-[10px] md:text-xs font-semibold mb-2 uppercase tracking-wider">{skill.level}</div>
-                                <p className="text-white/70 text-[10px] md:text-xs leading-relaxed">{skill.description}</p>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
-            </Html>
-        </group>
-    );
+interface GlobeSkill {
+    name: string;
 }
 
-function Globe() {
-    const groupRef = useRef<THREE.Group>(null);
-    const particlesRef = useRef<THREE.Points>(null);
+function fibonacciSphere(count: number, radius: number): THREE.Vector3[] {
+    const points: THREE.Vector3[] = [];
+    const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+    for (let i = 0; i < count; i += 1) {
+        const y = 1 - (i / Math.max(1, count - 1)) * 2;
+        const radiusAtY = Math.sqrt(Math.max(0, 1 - y * y));
+        const theta = goldenAngle * i;
+        points.push(
+            new THREE.Vector3(
+                Math.cos(theta) * radiusAtY * radius,
+                y * radius,
+                Math.sin(theta) * radiusAtY * radius
+            )
+        );
+    }
+    return points;
+}
 
-    // Setup skill positions on a sphere using Fibonacci distribution
-    const skillNodes = useMemo(() => {
-        const nodes = [];
-        const radius = 2.6; // slightly outside the base sphere
-        const phi = Math.PI * (3 - Math.sqrt(5)); // Golden angle
+interface GlobeSceneProps {
+    skills: GlobeSkill[];
+    colors: { foreground: string; primary: string; muted: string };
+}
 
-        for (let i = 0; i < allSkills.length; i++) {
-            const y = 1 - (i / (allSkills.length - 1)) * 2;
-            const radiusAtY = Math.sqrt(1 - y * y);
-            const theta = phi * i;
-
-            const x = Math.cos(theta) * radiusAtY;
-            const z = Math.sin(theta) * radiusAtY;
-
-            nodes.push({
-                skill: allSkills[i],
-                position: new THREE.Vector3(x * radius, y * radius, z * radius)
-            });
-        }
-        return nodes;
-    }, []);
-
-    // Rotate entire globe
-    useFrame(({ clock }) => {
-        if (groupRef.current) {
-            groupRef.current.rotation.y = clock.getElapsedTime() * 0.05;
-        }
-        if (particlesRef.current) {
-            particlesRef.current.rotation.y = clock.getElapsedTime() * 0.02;
-            particlesRef.current.rotation.x = clock.getElapsedTime() * 0.01;
-        }
-    });
-
-    // Generate random particles around a sphere
-    const particleCount = 600;
-
-    // Using simple points instead of complex lines for better performance on mobile
-    const positions = useMemo(() => {
-        const pos = new Float32Array(particleCount * 3);
-        const rBase = 2.2;
-
-        for (let i = 0; i < particleCount; i++) {
-            const phi = Math.acos(-1 + (2 * i) / particleCount);
-            const theta = Math.sqrt(particleCount * Math.PI) * phi;
-
-            // Deterministic random based on index
-            const rand = Math.abs(Math.sin(i * 12.9898) * 43758.5453) % 1;
-            const r = rBase + rand * 0.4;
-
-            pos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-            pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
-            pos[i * 3 + 2] = r * Math.cos(phi);
-        }
-        return pos;
-    }, [particleCount]);
+function GlobeScene({ skills, colors }: GlobeSceneProps) {
+    const [hovered, setHovered] = useState<number | null>(null);
+    const radius = 1.9;
+    const positions = useMemo(
+        () => fibonacciSphere(Math.max(skills.length, 2), radius),
+        [skills.length, radius]
+    );
+    const hoveredPosition = hovered != null ? positions[hovered] : null;
 
     return (
-        <group>
-            {/* The rotating system */}
-            <group ref={groupRef}>
-                {/* Base Inner Sphere */}
-                <Sphere args={[2, 64, 64]}>
-                    <meshBasicMaterial color="#0f172a" transparent opacity={0.6} />
-                </Sphere>
+        <>
+            <OrbitControls
+                enableZoom={false}
+                enablePan={false}
+                autoRotate
+                autoRotateSpeed={0.55}
+                rotateSpeed={0.35}
+                minPolarAngle={Math.PI / 3.2}
+                maxPolarAngle={(Math.PI * 2) / 3.2}
+            />
 
-                {/* Wireframe outer sphere */}
-                <Sphere args={[2.01, 32, 32]}>
-                    <meshBasicMaterial color="#1e293b" wireframe transparent opacity={0.15} />
-                </Sphere>
-
-                {/* Nodes on the sphere surface */}
-                {skillNodes.map((node, i) => (
-                    <SkillNode key={i} skill={node.skill} position={node.position} />
-                ))}
+            <group>
+                <mesh>
+                    <icosahedronGeometry args={[radius, 1]} />
+                    <meshBasicMaterial color={colors.foreground} wireframe transparent opacity={0.18} />
+                </mesh>
+                <mesh rotation={[Math.PI / 2, 0, 0]}>
+                    <torusGeometry args={[radius * 1.06, 0.004, 8, 128]} />
+                    <meshBasicMaterial color={colors.primary} transparent opacity={0.5} />
+                </mesh>
+                <mesh rotation={[0, Math.PI / 2, Math.PI / 2.4]}>
+                    <torusGeometry args={[radius * 1.12, 0.003, 8, 128]} />
+                    <meshBasicMaterial color={colors.muted} transparent opacity={0.4} />
+                </mesh>
+                <Sparkles
+                    count={70}
+                    scale={[radius * 2.7, radius * 2.7, radius * 2.7]}
+                    size={1.6}
+                    speed={0.35}
+                    opacity={0.35}
+                    color={colors.muted}
+                />
             </group>
 
-            {/* Network Particles (rotates differently for parallax) */}
-            {positions && (
-                <points ref={particlesRef}>
-                    <bufferGeometry>
-                        <bufferAttribute
-                            attach="attributes-position"
-                            args={[positions, 3]}
-                        />
-                    </bufferGeometry>
-                    <pointsMaterial
-                        size={0.02}
-                        color="#60a5fa"
-                        transparent
-                        opacity={0.6}
-                        sizeAttenuation
-                        blending={THREE.AdditiveBlending}
-                    />
-                </points>
+            {skills.map((skill, index) => {
+                const position = positions[index];
+                const active = hovered === index;
+                return (
+                    <group key={`${skill.name}-${index}`} position={position}>
+                        <mesh>
+                            <sphereGeometry args={[0.022, 12, 12]} />
+                            <meshBasicMaterial
+                                color={active ? colors.primary : colors.muted}
+                                transparent
+                                opacity={active ? 1 : 0.7}
+                            />
+                        </mesh>
+                        <Html center zIndexRange={[30, 0]} wrapperClass="pointer-events-auto">
+                            <button
+                                type="button"
+                                onPointerEnter={() => setHovered(index)}
+                                onPointerLeave={() => setHovered(null)}
+                                aria-label={skill.name}
+                                className={`whitespace-nowrap rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.15em] transition-colors duration-200 ${
+                                    active
+                                        ? "border-primary bg-primary text-primary-foreground"
+                                        : "border-border bg-card/90 text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+                                }`}
+                            >
+                                {skill.name}
+                            </button>
+                        </Html>
+                    </group>
+                );
+            })}
+
+            {hoveredPosition && (
+                <Line
+                    points={[new THREE.Vector3(0, 0, 0), hoveredPosition]}
+                    color={colors.primary}
+                    lineWidth={1}
+                />
             )}
-        </group>
+        </>
     );
 }
 
-export function SkillsGlobe() {
-    return (
-        <div className="w-full h-full min-h-[400px] lg:min-h-[600px] relative pointer-events-auto">
-            {/* Ambient glow behind the globe */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] bg-zinc-800/20 rounded-full blur-[100px] -z-10 pointer-events-none" />
+export default function SkillsGlobe({
+    skills,
+    className,
+}: {
+    skills: GlobeSkill[];
+    className?: string;
+}) {
+    const tokens = useSignalTokens();
+    const colors = useMemo(
+        () => ({ foreground: tokens.foreground, primary: tokens.primary, muted: tokens.muted }),
+        [tokens]
+    );
 
-            <div className="absolute inset-0 cursor-move">
-                <Canvas camera={{ position: [0, 0, 6], fov: 60 }} dpr={[1, 2]} gl={{ antialias: true, powerPreference: "high-performance" }}>
-                    <ambientLight intensity={0.5} />
-                    <Globe />
-                    <OrbitControls
-                        enableZoom={false}
-                        enablePan={false}
-                        autoRotate
-                        autoRotateSpeed={0.8}
-                        maxPolarAngle={Math.PI / 1.5}
-                        minPolarAngle={Math.PI / 3}
-                    />
-                    <Preload all />
-                </Canvas>
-            </div>
+    return (
+        <div className={className ?? "h-full w-full"}>
+            <Canvas
+                dpr={[1, 1.5]}
+                camera={{ position: [0, 0, 6.2], fov: 45 }}
+                gl={{ antialias: true, alpha: true }}
+            >
+                <GlobeScene skills={skills} colors={colors} />
+            </Canvas>
         </div>
     );
 }

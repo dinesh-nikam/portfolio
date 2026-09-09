@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 
@@ -18,38 +17,32 @@ export function ServiceRow({ num, title, description, delay = 0 }: ServiceRowPro
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.6, delay }}
-            className="group relative flex flex-col sm:flex-row items-start sm:items-center justify-between py-8 sm:py-10 border-b border-white/10 hover:border-blue-500/50 transition-colors duration-500 cursor-pointer overflow-hidden"
+            className="group relative flex cursor-pointer flex-col items-start justify-between overflow-hidden border-b border-border py-8 transition-colors duration-500 hover:border-primary/30 sm:flex-row sm:items-center sm:py-10"
         >
-            {/* Background Hover color bleed */}
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/0 to-blue-500/0 group-hover:from-blue-500/5 group-hover:via-blue-500/5 group-hover:to-transparent transition-all duration-500 pointer-events-none -z-10" />
+            <div className="pointer-events-none absolute inset-0 -z-10 bg-primary/0 transition-colors duration-500 group-hover:bg-primary/[0.04]" />
 
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-12 lg:gap-24 w-full">
-                {/* Number */}
-                <span className="text-xl md:text-2xl font-medium text-muted-foreground group-hover:text-blue-500 transition-colors duration-300">
+            <div className="flex w-full flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-12 lg:gap-24">
+                <span className="text-xl font-medium text-muted-foreground transition-colors duration-300 group-hover:text-primary md:text-2xl">
                     {num}
                 </span>
 
-                {/* Title */}
                 <motion.h3
-                    className="text-3xl md:text-5xl font-black tracking-tight text-foreground transition-transform duration-300 group-hover:translate-x-2"
+                    className="text-3xl font-medium tracking-tight text-foreground transition-transform duration-300 group-hover:translate-x-2 md:text-5xl"
                 >
                     {title}
                 </motion.h3>
 
-                {/* Description - pushes towards the end */}
-                <p className="text-sm md:text-base text-muted-foreground max-w-sm sm:ml-auto mt-4 sm:mt-0 transition-opacity duration-300 group-hover:text-foreground">
+                <p className="mt-4 max-w-sm text-sm text-muted-foreground transition-colors duration-300 group-hover:text-foreground sm:ml-auto sm:mt-0 md:text-base">
                     {description}
                 </p>
 
-                {/* Arrow Icon */}
-                <div className="mt-6 sm:mt-0 right-0 sm:relative w-12 h-12 rounded-full border border-white/10 group-hover:border-blue-500 flex items-center justify-center group-hover:bg-blue-500/10 transition-colors duration-300 shrink-0">
-                    <ArrowUpRight className="w-6 h-6 text-muted-foreground group-hover:text-blue-500 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
+                <div className="mt-6 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-border transition-colors duration-300 group-hover:border-primary group-hover:bg-primary/10 sm:mt-0">
+                    <ArrowUpRight className="h-6 w-6 text-muted-foreground transition-all duration-300 group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-primary" />
                 </div>
             </div>
 
-            {/* Animated divider line (bottom) */}
             <motion.div
-                className="absolute bottom-0 left-0 h-[1px] bg-gradient-to-r from-blue-500 to-blue-400 origin-left"
+                className="absolute bottom-0 left-0 h-px origin-left bg-primary"
                 initial={{ scaleX: 0 }}
                 whileHover={{ scaleX: 1 }}
                 transition={{ duration: 0.4, ease: "circOut" }}

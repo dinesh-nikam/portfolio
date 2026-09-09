@@ -36,16 +36,16 @@ export function EducationSection() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true, margin: "-50px" }}
                             transition={{ duration: 0.5, delay: idx * 0.1 }}
-                            className="group flex flex-col md:flex-row md:items-center justify-between p-6 rounded-2xl bg-white/[0.02] border border-white/5 backdrop-blur-sm hover:bg-white/[0.04] transition-all"
+                            className="group flex flex-col md:flex-row md:items-center justify-between p-6 rounded-md bg-card border border-border hover:border-primary/40 transition-all"
                         >
                             <div className="flex flex-col gap-1 mb-4 md:mb-0">
-                                <h3 className="text-xl font-semibold text-white group-hover:text-violet-300 transition-colors">
+                                <h3 className="text-xl font-semibold text-foreground group-hover:text-primary transition-colors">
                                     {item.degree}
                                 </h3>
                                 <p className="text-muted-foreground">{item.school}</p>
                             </div>
 
-                            <div className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-mono text-violet-300 w-fit">
+                            <div className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-muted/30 border border-border/70 text-sm font-mono text-primary w-fit">
                                 {item.year}
                             </div>
                         </motion.div>

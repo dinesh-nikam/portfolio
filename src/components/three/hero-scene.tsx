@@ -1,112 +1,183 @@
 "use client";
 
-import { useRef } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Float, Environment, ContactShadows } from "@react-three/drei";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
-import { useTheme } from "next-themes";
+import { Canvas, useFrame } from "@react-three/fiber";
+import gsap from "gsap";
+import { useCapable } from "@/hooks/use-capable";
+import { usePageRevealed } from "@/hooks/use-page-revealed";
+import { useSignalTokens } from "@/lib/signal-tokens";
 
-const CoreSphere = () => {
-    const mesh = useRef<THREE.Mesh>(null);
+/* Ambient hero sculpture — an ink wireframe icosahedron with a thin vermilion
+   orbit ring and a sparse dust halo. The whole assembly drifts on gsap-tuned
+   easing and leans with the pointer. Canvas work pauses in hidden tabs. */
+
+interface SceneColors {
+    foreground: string;
+    primary: string;
+    muted: string;
+}
+
+const HALO_COUNT = 260;
+const HALO_RADIUS = 3.1;
+const HALO_POSITIONS = (() => {
+    const array = new Float32Array(HALO_COUNT * 3);
+    for (let i = 0; i < HALO_COUNT; i += 1) {
+        const r = HALO_RADIUS * (0.7 + Math.random() * 0.45);
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        array[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+        array[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+        array[i * 3 + 2] = r * Math.cos(phi);
+    }
+    return array;
+})();
+
+function HaloPoints({ color }: { color: string }) {
+    const pointsRef = useRef<THREE.Points | null>(null);
 
     useFrame((state) => {
-        if (mesh.current) {
-            mesh.current.rotation.x = state.clock.getElapsedTime() * 0.15;
-            mesh.current.rotation.y = state.clock.getElapsedTime() * 0.2;
-        }
+        if (typeof document !== "undefined" && document.hidden) return;
+        const points = pointsRef.current;
+        if (!points) return;
+        points.rotation.y = state.clock.elapsedTime * 0.02;
+        points.rotation.x = Math.sin(state.clock.elapsedTime * 0.05) * 0.08;
     });
 
     return (
-        <Float speed={1.5} rotationIntensity={0.8} floatIntensity={1.5}>
-            <mesh ref={mesh} scale={2.2}>
-                <dodecahedronGeometry args={[1, 0]} />
-                <meshPhysicalMaterial
-                    color="#8b5cf6"
-                    metalness={0.95}
-                    roughness={0.05}
-                    clearcoat={1}
-                    clearcoatRoughness={0.1}
-                    wireframe={true}
-                    emissive="#6366f1"
-                    emissiveIntensity={0.15}
-                />
-            </mesh>
-        </Float>
+        <points ref={pointsRef}>
+            <bufferGeometry>
+                <bufferAttribute attach="attributes-position" args={[HALO_POSITIONS, 3]} />
+            </bufferGeometry>
+            <pointsMaterial
+                color={color}
+                size={0.022}
+                sizeAttenuation
+                transparent
+                opacity={0.55}
+                depthWrite={false}
+            />
+        </points>
     );
-};
+}
 
-const OrbitRing = ({ position, color, speed, scale = 0.4 }: {
-    position: [number, number, number];
-    color: string;
-    speed: number;
-    scale?: number;
-}) => {
-    const mesh = useRef<THREE.Mesh>(null);
+function WireScene() {
+    const tokens = useSignalTokens();
+    const tokensRef = useRef(tokens);
 
-    useFrame((state) => {
-        if (mesh.current) {
-            mesh.current.rotation.x = state.clock.getElapsedTime() * speed;
-            mesh.current.rotation.z = state.clock.getElapsedTime() * speed * 0.7;
+    useEffect(() => {
+        tokensRef.current = tokens;
+    }, [tokens]);
+
+    const spinRef = useRef<THREE.Group | null>(null);
+    const tiltRef = useRef<THREE.Group | null>(null);
+    const parallaxRef = useRef<THREE.Group | null>(null);
+    const ringRef = useRef<THREE.Mesh | null>(null);
+    const pointer = useRef({ x: 0, y: 0 });
+
+    useEffect(() => {
+        const onMove = (event: PointerEvent) => {
+            pointer.current.x = (event.clientX / window.innerWidth) * 2 - 1;
+            pointer.current.y = (event.clientY / window.innerHeight) * 2 - 1;
+        };
+        window.addEventListener("pointermove", onMove, { passive: true });
+        return () => window.removeEventListener("pointermove", onMove);
+    }, []);
+
+    useFrame((state, delta) => {
+        if (typeof document !== "undefined" && document.hidden) return;
+        const time = state.clock.elapsedTime;
+        if (spinRef.current) spinRef.current.rotation.y += delta * 0.08;
+        if (tiltRef.current) {
+            tiltRef.current.rotation.x = Math.sin(time * 0.1) * 0.1;
+            tiltRef.current.rotation.z = Math.sin(time * 0.07) * 0.06;
+        }
+        if (ringRef.current) ringRef.current.rotation.z += delta * 0.25;
+        if (parallaxRef.current) {
+            parallaxRef.current.rotation.x = THREE.MathUtils.damp(
+                parallaxRef.current.rotation.x,
+                -pointer.current.y * 0.16,
+                3.5,
+                delta
+            );
+            parallaxRef.current.rotation.y = THREE.MathUtils.damp(
+                parallaxRef.current.rotation.y,
+                pointer.current.x * 0.22,
+                3.5,
+                delta
+            );
         }
     });
 
+    const colors = tokensRef.current;
+
     return (
-        <Float speed={2} rotationIntensity={1.5} floatIntensity={2}>
-            <mesh ref={mesh} position={position} scale={scale}>
-                <torusKnotGeometry args={[1, 0.3, 64, 8, 2, 3]} />
-                <meshStandardMaterial
-                    color={color}
-                    metalness={0.85}
-                    roughness={0.15}
-                    wireframe={true}
-                    emissive={color}
-                    emissiveIntensity={0.1}
-                />
-            </mesh>
-        </Float>
+        <group>
+            <group ref={spinRef}>
+                <HaloPoints color={colors.muted} />
+                <group ref={tiltRef}>
+                    <group ref={parallaxRef}>
+                        <mesh>
+                            <icosahedronGeometry args={[1.45, 1]} />
+                            <meshBasicMaterial
+                                color={colors.foreground}
+                                wireframe
+                                transparent
+                                opacity={0.2}
+                            />
+                        </mesh>
+                        <mesh ref={ringRef} rotation={[Math.PI / 2.15, 0.3, 0]}>
+                            <torusGeometry args={[2.05, 0.009, 8, 128]} />
+                            <meshBasicMaterial color={colors.primary} transparent opacity={0.7} />
+                        </mesh>
+                        <mesh rotation={[-Math.PI / 2.4, 0.9, Math.PI / 5]}>
+                            <torusGeometry args={[2.4, 0.005, 8, 128]} />
+                            <meshBasicMaterial color={colors.muted} transparent opacity={0.5} />
+                        </mesh>
+                    </group>
+                </group>
+            </group>
+        </group>
     );
-};
+}
 
-const FloatingParticle = ({ position, color }: {
-    position: [number, number, number];
-    color: string;
-}) => {
+export default function HeroScene() {
+    const { mounted, capable } = useCapable(1024);
+    const revealed = usePageRevealed();
+    const wrapRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        const wrap = wrapRef.current;
+        if (!revealed || !wrap) return;
+        const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (reduced) {
+            gsap.set(wrap, { opacity: 1, scale: 1 });
+            return;
+        }
+        const timeline = gsap.fromTo(
+            wrap,
+            { opacity: 0, scale: 0.94 },
+            { opacity: 1, scale: 1, duration: 1.15, ease: "power3.out" }
+        );
+        return () => {
+            timeline.kill();
+        };
+    }, [revealed]);
+
+    if (!mounted || !capable) return null;
+
     return (
-        <Float speed={3} rotationIntensity={0} floatIntensity={3}>
-            <mesh position={position}>
-                <sphereGeometry args={[0.06, 8, 8]} />
-                <meshBasicMaterial color={color} />
-            </mesh>
-        </Float>
-    );
-};
-
-export function HeroScene() {
-    const { theme } = useTheme();
-    const isDark = theme === "dark" || theme === "system";
-
-    return (
-        <div className="absolute inset-0 -z-10 h-full w-full">
-            <Canvas camera={{ position: [0, 0, 8], fov: 45 }} dpr={[1, 2]} gl={{ antialias: true, powerPreference: "high-performance" }}>
-                <ambientLight intensity={isDark ? 0.3 : 0.8} />
-                <directionalLight position={[10, 10, 5]} intensity={1.2} color="#e0d4ff" />
-                <pointLight position={[-10, -10, -10]} intensity={0.8} color="#8b5cf6" />
-                <pointLight position={[5, 5, -5]} intensity={0.4} color="#06b6d4" />
-
-                <CoreSphere />
-                <OrbitRing position={[-4, 2.5, -2]} color="#8b5cf6" speed={0.4} scale={0.35} />
-                <OrbitRing position={[4.5, -1.5, -1]} color="#6366f1" speed={0.3} scale={0.3} />
-                <OrbitRing position={[-2, -3, -3]} color="#06b6d4" speed={0.5} scale={0.25} />
-
-                {/* Floating particles */}
-                <FloatingParticle position={[3, 3, -2]} color="#8b5cf6" />
-                <FloatingParticle position={[-3, -2, -1]} color="#6366f1" />
-                <FloatingParticle position={[2, -3, -3]} color="#06b6d4" />
-                <FloatingParticle position={[-4, 1, -2]} color="#a78bfa" />
-                <FloatingParticle position={[1, 4, -4]} color="#818cf8" />
-
-                <ContactShadows position={[0, -3.5, 0]} opacity={0.3} scale={20} blur={2.5} far={4} color="#8b5cf6" />
-                <Environment preset={isDark ? "night" : "studio"} />
+        <div
+            ref={wrapRef}
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 z-0 opacity-0"
+        >
+            <Canvas
+                dpr={[1, 1.5]}
+                camera={{ position: [0, 0, 6], fov: 45 }}
+                gl={{ antialias: true, alpha: true }}
+            >
+                <WireScene />
             </Canvas>
         </div>
     );

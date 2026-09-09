@@ -32,8 +32,9 @@ export function CookieConsent() {
 
         // Listen for internal event to re-open cookie settings
         const handleOpenSettings = () => {
-            if (consent) {
-                setPreferences(JSON.parse(consent));
+            const currentConsent = localStorage.getItem("cookie_consent");
+            if (currentConsent) {
+                setPreferences(JSON.parse(currentConsent));
             }
             setIsVisible(true);
             setShowCustomize(true);
@@ -72,19 +73,19 @@ export function CookieConsent() {
                 transition={{ type: "spring", stiffness: 300, damping: 25 }}
                 className="fixed bottom-4 left-4 right-4 md:left-auto md:right-8 md:w-[480px] z-50 pointer-events-auto"
             >
-                <div className="bg-black/60 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden shadow-[0_10px_40px_-10px_rgba(0,0,0,0.8)]">
+                <div className="bg-card/95 backdrop-blur-xl border border-border rounded-md shadow-2xl overflow-hidden">
 
                     {!showCustomize ? (
                         <div className="p-6">
                             <div className="flex items-start gap-4 mb-4">
-                                <div className="p-3 bg-white/5 rounded-xl text-blue-400 shrink-0">
+                                <div className="p-3 bg-primary/10 border border-primary/20 rounded-md text-primary shrink-0">
                                     <Cookie className="w-6 h-6" />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold text-white mb-2 tracking-tight">We value your privacy</h3>
-                                    <p className="text-sm text-gray-400 leading-relaxed">
+                                    <h3 className="text-lg font-bold text-foreground mb-2 tracking-tight">We value your privacy</h3>
+                                    <p className="text-sm text-muted-foreground leading-relaxed">
                                         We use cookies to enhance your browsing experience, serve personalized content, and analyze our traffic. By clicking &quot;Accept All&quot;, you consent to our use of cookies.
-                                        <Link href="/privacy-policy" className="text-blue-400 hover:text-blue-300 ml-1 inline-flex items-center gap-0.5 group">
+                                        <Link href="/privacy-policy" className="text-primary hover:text-primary/80 ml-1 inline-flex items-center gap-0.5 group">
                                             Read Policy
                                         </Link>
                                     </p>
@@ -94,19 +95,19 @@ export function CookieConsent() {
                             <div className="flex flex-col sm:flex-row gap-3 mt-6">
                                 <button
                                     onClick={handleAcceptAll}
-                                    className="flex-1 bg-white text-black py-2.5 px-4 rounded-xl font-semibold hover:bg-white/90 transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] text-sm whitespace-nowrap"
+                                    className="flex-1 bg-primary text-primary-foreground py-2.5 px-4 rounded-md font-semibold hover:bg-primary/90 transition-colors text-sm whitespace-nowrap"
                                 >
                                     Accept All
                                 </button>
                                 <button
                                     onClick={handleRejectNonEssential}
-                                    className="flex-1 bg-white/5 text-white py-2.5 px-4 rounded-xl font-medium hover:bg-white/10 transition-colors border border-white/10 text-sm whitespace-nowrap"
+                                    className="flex-1 bg-muted/30 text-foreground py-2.5 px-4 rounded-md font-medium hover:bg-muted/50 transition-colors border border-border text-sm whitespace-nowrap"
                                 >
                                     Reject All
                                 </button>
                                 <button
                                     onClick={() => setShowCustomize(true)}
-                                    className="p-2.5 bg-white/5 text-gray-400 rounded-xl hover:bg-white/10 hover:text-white transition-colors border border-white/10 shrink-0"
+                                    className="p-2.5 bg-muted/30 text-muted-foreground rounded-md hover:bg-muted/50 hover:text-foreground transition-colors border border-border shrink-0"
                                     title="Customize Preferences"
                                 >
                                     <Settings className="w-5 h-5" />
@@ -115,14 +116,14 @@ export function CookieConsent() {
                         </div>
                     ) : (
                         <div className="flex flex-col max-h-[85vh]">
-                            <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/5">
-                                <h3 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-                                    <Shield className="w-5 h-5 text-blue-400" />
+                            <div className="p-6 border-b border-border flex justify-between items-center bg-muted/30">
+                                <h3 className="text-lg font-bold text-foreground tracking-tight flex items-center gap-2">
+                                    <Shield className="w-5 h-5 text-primary" />
                                     Cookie Preferences
                                 </h3>
                                 <button
                                     onClick={() => setShowCustomize(false)}
-                                    className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors"
+                                    className="text-muted-foreground hover:text-foreground p-1 rounded-md hover:bg-muted/50 transition-colors"
                                 >
                                     <X className="w-5 h-5" />
                                 </button>
@@ -132,13 +133,13 @@ export function CookieConsent() {
                                 {/* Essential */}
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between">
-                                        <h4 className="text-white font-medium flex items-center gap-2">
-                                            <div className="w-2 h-2 rounded-full bg-blue-500" />
+                                        <h4 className="text-foreground font-medium flex items-center gap-2">
+                                            <div className="w-2 h-2 rounded-full bg-primary" />
                                             Essential Cookies
                                         </h4>
-                                        <span className="text-xs uppercase font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded">Always On</span>
+                                        <span className="text-xs uppercase font-bold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded">Always On</span>
                                     </div>
-                                    <p className="text-xs text-gray-400 leading-relaxed pl-4 border-l border-white/10 ml-1">
+                                    <p className="text-xs text-muted-foreground leading-relaxed pl-4 border-l border-border ml-1">
                                         These cookies are required for the website to function properly. They cannot be disabled.
                                     </p>
                                 </div>
@@ -146,18 +147,19 @@ export function CookieConsent() {
                                 {/* Analytics */}
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between">
-                                        <h4 className="text-white font-medium flex items-center gap-2">
-                                            <div className={`w-2 h-2 rounded-full transition-colors ${preferences.analytics ? "bg-emerald-500" : "bg-gray-600"}`} />
+                                        <h4 className="text-foreground font-medium flex items-center gap-2">
+                                            <div className={`w-2 h-2 rounded-full transition-colors ${preferences.analytics ? "bg-primary" : "bg-border"}`} />
                                             Analytics Cookies
                                         </h4>
                                         <button
                                             onClick={() => setPreferences(p => ({ ...p, analytics: !p.analytics }))}
-                                            className={`relative w-10 h-6 rounded-full transition-colors duration-300 outline-none ${preferences.analytics ? 'bg-emerald-500/20 border border-emerald-500/50' : 'bg-white/10 border border-white/20'}`}
+                                            aria-label="Toggle Analytics Cookies"
+                                            className={`relative w-10 h-6 rounded-full transition-colors duration-300 outline-none ${preferences.analytics ? 'bg-primary/20 border border-primary/50' : 'bg-muted/30 border border-border'}`}
                                         >
-                                            <div className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white transition-transform duration-300 ${preferences.analytics ? 'translate-x-4 shadow-[0_0_10px_rgba(16,185,129,0.5)] bg-emerald-400' : 'translate-x-0'}`} />
+                                            <div className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full transition-transform duration-300 ${preferences.analytics ? 'translate-x-4 bg-primary' : 'translate-x-0 bg-background border border-border'}`} />
                                         </button>
                                     </div>
-                                    <p className="text-xs text-gray-400 leading-relaxed pl-4 border-l border-white/10 ml-1">
+                                    <p className="text-xs text-muted-foreground leading-relaxed pl-4 border-l border-border ml-1">
                                         Allow us to analyze site usage and measure performance. Help us improve the experience for all users.
                                     </p>
                                 </div>
@@ -165,27 +167,28 @@ export function CookieConsent() {
                                 {/* Marketing */}
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between">
-                                        <h4 className="text-white font-medium flex items-center gap-2">
-                                            <div className={`w-2 h-2 rounded-full transition-colors ${preferences.marketing ? "bg-purple-500" : "bg-gray-600"}`} />
+                                        <h4 className="text-foreground font-medium flex items-center gap-2">
+                                            <div className={`w-2 h-2 rounded-full transition-colors ${preferences.marketing ? "bg-primary" : "bg-border"}`} />
                                             Marketing Cookies
                                         </h4>
                                         <button
                                             onClick={() => setPreferences(p => ({ ...p, marketing: !p.marketing }))}
-                                            className={`relative w-10 h-6 rounded-full transition-colors duration-300 outline-none ${preferences.marketing ? 'bg-purple-500/20 border border-purple-500/50' : 'bg-white/10 border border-white/20'}`}
+                                            aria-label="Toggle Marketing Cookies"
+                                            className={`relative w-10 h-6 rounded-full transition-colors duration-300 outline-none ${preferences.marketing ? 'bg-primary/20 border border-primary/50' : 'bg-muted/30 border border-border'}`}
                                         >
-                                            <div className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white transition-transform duration-300 ${preferences.marketing ? 'translate-x-4 shadow-[0_0_10px_rgba(168,85,247,0.5)] bg-purple-400' : 'translate-x-0'}`} />
+                                            <div className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full transition-transform duration-300 ${preferences.marketing ? 'translate-x-4 bg-primary' : 'translate-x-0 bg-background border border-border'}`} />
                                         </button>
                                     </div>
-                                    <p className="text-xs text-gray-400 leading-relaxed pl-4 border-l border-white/10 ml-1">
+                                    <p className="text-xs text-muted-foreground leading-relaxed pl-4 border-l border-border ml-1">
                                         Used to deliver tailored content and track marketing campaign effectiveness.
                                     </p>
                                 </div>
                             </div>
 
-                            <div className="p-6 border-t border-white/10 bg-black/40">
+                            <div className="p-6 border-t border-border bg-muted/30">
                                 <button
                                     onClick={handleSaveSelection}
-                                    className="w-full bg-white text-black py-3 px-4 rounded-xl font-semibold hover:bg-white/90 transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)] flex items-center justify-center gap-2"
+                                    className="w-full bg-primary text-primary-foreground py-3 px-4 rounded-md font-semibold hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
                                 >
                                     <Check className="w-4 h-4" /> Save Preferences
                                 </button>
