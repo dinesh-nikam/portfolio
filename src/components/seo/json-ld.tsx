@@ -182,7 +182,7 @@ export function buildArticleSchema({
       name: SITE_NAME,
       logo: {
         "@type": "ImageObject",
-        url: `${SITE_URL}/my.png`,
+        url: `${OG_IMAGE_URL}`,
       },
     },
     keywords: "engineering, software architecture, web development, React, Next.js",
