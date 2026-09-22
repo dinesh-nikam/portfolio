@@ -12,11 +12,6 @@ import { useSignalTokens } from "@/lib/signal-tokens";
    orbit ring and a sparse dust halo. The whole assembly drifts on gsap-tuned
    easing and leans with the pointer. Canvas work pauses in hidden tabs. */
 
-interface SceneColors {
-    foreground: string;
-    primary: string;
-    muted: string;
-}
 
 const HALO_COUNT = 260;
 const HALO_RADIUS = 3.1;
@@ -61,13 +56,8 @@ function HaloPoints({ color }: { color: string }) {
     );
 }
 
-function WireScene() {
+function WireScene({ visibleRef }: { visibleRef: { current: boolean } }) {
     const tokens = useSignalTokens();
-    const tokensRef = useRef(tokens);
-
-    useEffect(() => {
-        tokensRef.current = tokens;
-    }, [tokens]);
 
     const spinRef = useRef<THREE.Group | null>(null);
     const tiltRef = useRef<THREE.Group | null>(null);
@@ -85,6 +75,8 @@ function WireScene() {
     }, []);
 
     useFrame((state, delta) => {
+        // Skip GPU work while the hero is scrolled off the viewport
+        if (!visibleRef.current) return;
         if (typeof document !== "undefined" && document.hidden) return;
         const time = state.clock.elapsedTime;
         if (spinRef.current) spinRef.current.rotation.y += delta * 0.08;
@@ -109,7 +101,7 @@ function WireScene() {
         }
     });
 
-    const colors = tokensRef.current;
+    const colors = tokens;
 
     return (
         <group>
@@ -145,6 +137,22 @@ export default function HeroScene() {
     const { mounted, capable } = useCapable(1024);
     const revealed = usePageRevealed();
     const wrapRef = useRef<HTMLDivElement | null>(null);
+    const visibleRef = useRef(true);
+
+    // Pause the render loop while the hero is scrolled out of view —
+    // the canvas previously kept animating even 5000px down the page.
+    useEffect(() => {
+        const wrap = wrapRef.current;
+        if (!mounted || !capable || !wrap || typeof IntersectionObserver === "undefined") return;
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                visibleRef.current = entry.isIntersecting;
+            },
+            { rootMargin: "120px" }
+        );
+        observer.observe(wrap);
+        return () => observer.disconnect();
+    }, [mounted, capable]);
 
     useEffect(() => {
         const wrap = wrapRef.current;
@@ -177,7 +185,7 @@ export default function HeroScene() {
                 camera={{ position: [0, 0, 6], fov: 45 }}
                 gl={{ antialias: true, alpha: true }}
             >
-                <WireScene />
+                <WireScene visibleRef={visibleRef} />
             </Canvas>
         </div>
     );

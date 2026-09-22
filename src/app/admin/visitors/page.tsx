@@ -78,6 +78,22 @@ export default function VisitorsDashboard() {
         );
     }
 
+    // Guard: a failed refresh returns `{ error }` — destructuring it would
+    // crash the page with a white screen. Show a recoverable error instead.
+    if (!data?.overview) {
+        return (
+            <div className="flex flex-col items-center justify-center h-full gap-4">
+                <p className="text-red-400 font-mono text-sm">Failed to load visitor intelligence.</p>
+                <button
+                    onClick={() => { setData(null); setLoading(true); window.location.reload(); }}
+                    className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition-colors"
+                >
+                    Retry
+                </button>
+            </div>
+        );
+    }
+
     const { overview, chartData, geographic, devices, profiles, potentialClients, liveVisitors } = data;
 
     return (

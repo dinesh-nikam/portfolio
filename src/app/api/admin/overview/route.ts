@@ -19,6 +19,9 @@ export async function GET() {
 
         const totalViews = await prisma.pageView.count();
         const contactMessagesCount = await prisma.contactMessage.count();
+        const pendingMessagesCount = await prisma.contactMessage.count({
+            where: { isRead: false },
+        });
 
         // Average session duration
         const sessions = await prisma.session.findMany({
@@ -35,6 +38,7 @@ export async function GET() {
             recentVisitors,
             totalViews,
             contactMessagesCount,
+            pendingMessagesCount,
             avgSessionDuration,
         });
     } catch (error) {

@@ -1,136 +1,93 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-// Ensure GSAP plugins are registered
-if (typeof window !== "undefined") {
-    gsap.registerPlugin(ScrollTrigger);
-}
+import { Terminal, Compass, Feather } from "lucide-react";
 
 export function AboutSection() {
-    const sectionRef = useRef<HTMLElement>(null);
-
-    useEffect(() => {
-        // Scoped GSAP context — everything below is cleaned up on unmount
-        const ctx = gsap.context(() => {
-            // Statement reveal on scroll
-            gsap.utils.toArray<HTMLElement>(".about-statement").forEach((el) => {
-                gsap.fromTo(
-                    el,
-                    { opacity: 0.15, y: 28 },
-                    {
-                        opacity: 1,
-                        y: 0,
-                        duration: 1.4,
-                        ease: "power3.out",
-                        scrollTrigger: {
-                            trigger: el,
-                            start: "top 85%",
-                            end: "bottom 60%",
-                            scrub: 1,
-                        },
-                    }
-                );
-            });
-
-            // Decorative rule draws itself in
-            gsap.fromTo(
-                ".separator-about",
-                { scaleX: 0 },
-                {
-                    scaleX: 1,
-                    duration: 1.2,
-                    ease: "power2.out",
-                    scrollTrigger: {
-                        trigger: ".separator-about",
-                        start: "top 92%",
-                    },
-                }
-            );
-
-            // Stats fade up
-            gsap.utils.toArray<HTMLElement>(".stat-item").forEach((el) => {
-                gsap.fromTo(
-                    el,
-                    { opacity: 0, y: 18 },
-                    {
-                        opacity: 1,
-                        y: 0,
-                        duration: 0.9,
-                        ease: "power2.out",
-                        scrollTrigger: {
-                            trigger: el,
-                            start: "top 90%",
-                        },
-                    }
-                );
-            });
-        }, sectionRef);
-
-        return () => ctx.revert();
-    }, []);
-
     return (
         <section
             id="about"
-            ref={sectionRef}
-            className="relative w-full px-6 py-32 md:px-12 lg:px-24"
+            className="relative w-full border-t border-border px-6 py-28 md:px-12 lg:px-20 xl:px-24"
         >
-            <div className="mx-auto grid w-full max-w-7xl gap-16 lg:grid-cols-[220px_1fr]">
-                {/* Sticky index column */}
-                <div className="flex flex-col gap-4 lg:sticky lg:top-32 lg:self-start">
-                    <span className="flex items-center gap-3 font-mono text-xs uppercase tracking-[0.3em] text-primary">
+            <div className="mx-auto flex w-full max-w-7xl flex-col gap-16">
+                {/* Section Index */}
+                <div className="flex flex-col gap-3">
+                    <span className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.3em] text-primary">
                         <span className="h-1.5 w-1.5 bg-primary" aria-hidden />
-                        01 — Philosophy
+                        01 / PHILOSOPHY & ABOUT
                     </span>
-                    <p className="max-w-[14rem] text-sm leading-relaxed text-muted-foreground">
-                        Some principles behind the work — the how, not just the what.
-                    </p>
-                    <span className="hairline mt-2 hidden lg:block" />
                 </div>
 
-                {/* Statements + stats */}
-                <div className="flex flex-col gap-14">
-                    <p className="about-statement font-display text-3xl font-medium leading-[1.15] tracking-tight md:text-4xl lg:text-5xl">
-                        I believe the best digital products sit at the intersection of{" "}
-                        <em className="text-primary">robust engineering</em> and{" "}
-                        <em className="text-primary">elevated design</em>.
-                    </p>
-                    <p className="about-statement font-display text-3xl font-medium leading-[1.15] tracking-tight md:text-4xl lg:text-5xl">
-                        Every line of code and every pixel is crafted with intention — focusing on{" "}
-                        <em className="text-primary">fluid motion</em> and{" "}
-                        <em className="text-primary">precise typography</em> for a seamless experience.
-                    </p>
-                    <p className="about-statement font-display text-3xl font-medium leading-[1.15] tracking-tight md:text-4xl lg:text-5xl">
-                        I don&apos;t just build websites — I{" "}
-                        <em className="text-primary">architect digital environments</em> that feel calm, polished,
-                        and unmistakably precise.
-                    </p>
+                {/* Dominant Manifesto Statement */}
+                <div className="max-w-5xl">
+                    <h2 className="font-display text-4xl font-medium leading-[1.08] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
+                        I care about the space between{" "}
+                        <span className="italic text-primary">design</span> and{" "}
+                        <span className="italic text-primary">engineering</span>.
+                    </h2>
+                </div>
 
-                    <div className="separator-about hairline origin-left" />
+                {/* Editorial Biography & Human Narrative */}
+                <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16 pt-4">
+                    {/* Left Column: The Narrative (Col 1-7) */}
+                    <div className="flex flex-col gap-6 text-base leading-relaxed text-muted-foreground sm:text-lg lg:col-span-7">
+                        <p>
+                            I&apos;m <strong className="font-medium text-foreground">Dinesh Nikam</strong>, a full-stack engineer and creative technologist based in Pune, India. I treat the browser not merely as an application viewport, but as an interactive canvas where typography, motion mathematics, and systems architecture converge.
+                        </p>
+                        <p>
+                            Too often, digital products suffer from a fundamental disconnect: engineers view design as decorative afterthought, while designers lack intimate intuition for GPU memory boundaries, edge compute latency, and DOM layout thrashing. I operate squarely in that seam.
+                        </p>
+                        <p>
+                            When I build, I don&apos;t assemble generic boilerplate components. I architect bespoke digital environments where transitions feel organic, tactile interactions respond without perceptible latency, and typography commands the page with editorial dignity.
+                        </p>
+                        <p>
+                            What drives me is quiet confidence: building software that doesn&apos;t scream for attention with gimmicks, but rewards attention through relentless intentionality, sub-second performance, and timeless restraint.
+                        </p>
+                    </div>
 
-                    {/* Stats */}
-                    <div className="grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-4">
-                        {[
-                            { value: "3+ Years", label: "Experience" },
-                            { value: "50+", label: "Projects" },
-                            { value: "UX/UI & Code", label: "Focus" },
-                            { value: "Remote", label: "Location" },
-                        ].map((stat) => (
-                            <div
-                                key={stat.label}
-                                className="stat-item flex flex-col gap-2 border-l border-border pl-5"
-                            >
-                                <span className="font-display text-3xl font-medium tracking-tight md:text-4xl">
-                                    {stat.value}
-                                </span>
-                                <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-                                    {stat.label}
-                                </span>
-                            </div>
-                        ))}
+                    {/* Right Column: Values & Distinctions (Col 8-12) */}
+                    <div className="flex flex-col gap-6 rounded-sm border border-border bg-card p-8 lg:col-span-5">
+                        <span className="font-mono text-xs uppercase tracking-[0.25em] text-primary">
+                            CORE ETHOS
+                        </span>
+
+                        <div className="flex flex-col gap-6">
+                            {[
+                                {
+                                    icon: Feather,
+                                    title: "Typography as Interface",
+                                    desc: "Type is never mere filler. It dictates rhythm, establishes tension, and guides the eye with architectural clarity.",
+                                },
+                                {
+                                    icon: Terminal,
+                                    title: "Engineered Precision",
+                                    desc: "Clean abstractions, strict type safety, sub-50ms edge APIs, and zero unneeded dependencies.",
+                                },
+                                {
+                                    icon: Compass,
+                                    title: "Deliberate Motion",
+                                    desc: "Every spring and keyframe must have physical purpose. If an animation exists only to show off, it gets removed.",
+                                },
+                            ].map((ethos, i) => (
+                                <div key={i} className="flex items-start gap-4">
+                                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-border bg-background text-primary">
+                                        <ethos.icon className="h-4 w-4" />
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                        <h3 className="font-mono text-xs font-semibold uppercase tracking-wider text-foreground">
+                                            {ethos.title}
+                                        </h3>
+                                        <p className="text-xs leading-relaxed text-muted-foreground">
+                                            {ethos.desc}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="mt-4 border-t border-border pt-6 flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                            <span>LOCATION: PUNE, IN</span>
+                            <span>TIMEZONE: IST (UTC+5:30)</span>
+                        </div>
                     </div>
                 </div>
             </div>

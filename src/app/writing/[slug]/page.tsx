@@ -12,29 +12,49 @@ import { ViewTracker } from '@/components/writing/view-tracker';
 import { JsonLdScript, buildArticleSchema, buildBreadcrumbSchema } from '@/components/seo/json-ld';
 import { SITE_URL } from '@/lib/metadata';
 
+import { CURATED_FALLBACK_ARTICLES } from '@/lib/blog-generator';
+
 // Ensure the route is dynamic or statically generated later if configured.
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
-    const article = await prisma.article.findUnique({
-        where: { slug },
-        select: {
-            title: true,
-            excerpt: true,
-            publishedAt: true,
-            createdAt: true,
-            updatedAt: true,
-            category: true,
-            slug: true,
-        },
-    });
+    let article: any = null;
+    try {
+        article = await prisma.article.findUnique({
+            where: { slug },
+            select: {
+                title: true,
+                excerpt: true,
+                publishedAt: true,
+                createdAt: true,
+                updatedAt: true,
+                category: true,
+                slug: true,
+            },
+        });
+    } catch {
+        // Handled below
+    }
+
+    if (!article && CURATED_FALLBACK_ARTICLES[slug]) {
+        const fallback = CURATED_FALLBACK_ARTICLES[slug];
+        article = {
+            title: fallback.title,
+            excerpt: fallback.excerpt,
+            publishedAt: fallback.publishedAt,
+            createdAt: fallback.publishedAt,
+            updatedAt: fallback.publishedAt,
+            category: fallback.category,
+            slug: fallback.slug,
+        };
+    }
 
     if (!article) {
         return { title: 'Not Found | Dinesh Nikam' };
     }
 
-    const publishDate = article.publishedAt ?? article.createdAt;
+    const publishDate = article.publishedAt ?? article.createdAt ?? new Date();
     const modifiedDate = article.updatedAt ?? publishDate;
 
     return {
@@ -63,16 +83,39 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
 
-    const article = await prisma.article.findUnique({
-        where: { slug },
-    });
+    let article: any = null;
+    try {
+        article = await prisma.article.findUnique({
+            where: { slug },
+        });
+    } catch {
+        // Handled below
+    }
+
+    if (!article && CURATED_FALLBACK_ARTICLES[slug]) {
+        const fallback = CURATED_FALLBACK_ARTICLES[slug];
+        article = {
+            id: `fallback-${slug}`,
+            title: fallback.title,
+            slug: fallback.slug,
+            excerpt: fallback.excerpt,
+            content: fallback.content,
+            category: fallback.category,
+            readingTime: fallback.readingTime,
+            status: 'PUBLISHED',
+            publishedAt: fallback.publishedAt,
+            createdAt: fallback.publishedAt,
+            updatedAt: fallback.publishedAt,
+            views: 128,
+        };
+    }
 
     if (!article || article.status !== 'PUBLISHED') {
         notFound();
     }
 
     // Build JSON-LD schemas
-    const publishDate = article.publishedAt ?? article.createdAt;
+    const publishDate = article.publishedAt ?? article.createdAt ?? new Date();
     const modifiedDate = article.updatedAt ?? publishDate;
     const articleSchema = buildArticleSchema({
         title: article.title,

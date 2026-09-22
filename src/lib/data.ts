@@ -8,7 +8,7 @@ export const projectsData = [
         role: "Frontend Architecture & Re-platforming",
         tech: ["nextjs", "react", "D3.js", "Tailwind CSS", "mongodb", "shodan"],
         link: "#",
-        image: "/cybersherlock.png",
+        image: "/cybersherlock.webp",
     },
     {
         id: "02",
@@ -17,7 +17,7 @@ export const projectsData = [
         role: "Full-Stack Development",
         tech: ["Next.js", "Node.js", "WebSockets", "Mongodb"],
         link: "#",
-        image: "/hpconnect.png",
+        image: "/hpconnect.webp",
     },
     {
         id: "03",
@@ -26,7 +26,7 @@ export const projectsData = [
         role: "Frontend & Backend Development",
         tech: ["codigniter", "PHP", "MySQL", "HTML5/CSS3", "JavaScript", "tailwind css"],
         link: "https://ithpl.com",
-        image: "/ithplwebsite.png",
+        image: "/ithplwebsite.webp",
     }
 ];
 
@@ -174,7 +174,7 @@ export const certificationsData = [
         credentialId: "AWS-SAA-12345",
         link: "https://aws.amazon.com/certification/certified-solutions-architect-associate/",
         category: "Cloud",
-        image: "/certifications/aws-sa.png",
+        image: "/certifications/aws-sa.webp",
         icon: "aws"
     },
     {
@@ -185,7 +185,7 @@ export const certificationsData = [
         credentialId: "GCP-ACE-67890",
         link: "https://cloud.google.com/certification/cloud-engineer",
         category: "Cloud",
-        image: "/certifications/gcp-ace.png",
+        image: "/certifications/gcp-ace.webp",
         icon: "gcp"
     },
     {
@@ -196,7 +196,7 @@ export const certificationsData = [
         credentialId: "CKA-112233",
         link: "https://www.cncf.io/certification/cka/",
         category: "DevOps",
-        image: "/certifications/cncf-cka.png",
+        image: "/certifications/cncf-cka.webp",
         icon: "k8s"
     },
     {
@@ -207,7 +207,7 @@ export const certificationsData = [
         credentialId: "META-FE-445566",
         link: "https://www.coursera.org/professional-certificates/meta-front-end-developer",
         category: "Frontend",
-        image: "/certifications/meta-fe.png",
+        image: "/certifications/meta-fe.webp",
         icon: "react"
     }
 ];

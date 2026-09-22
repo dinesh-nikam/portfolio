@@ -10,7 +10,7 @@ import { useSignalTokens } from "@/lib/signal-tokens";
    cloud over the base <Image> layer (LCP stays intact). Hovering repels the
    particles around an ink-radius well; they settle back on release. */
 
-const IMAGE_URL = "/my.png";
+const IMAGE_URL = "/my.webp";
 const TARGET_COUNT = 9000;
 
 interface Sample {
@@ -55,7 +55,8 @@ async function sampleImage(url: string): Promise<Sample | null> {
     for (let y = 0; y < height; y += step) {
         for (let x = 0; x < width; x += step) {
             if (data[(y * width + x) * 4 + 3] <= 100) continue;
-            positions.push((x / width) * 2 - 1, ((y / height) * 2 - 1) * aspect, 0);
+            // Invert Y axis: Canvas Y=0 is top, WebGL +Y is top
+            positions.push((x / width) * 2 - 1, -(((y / height) * 2 - 1) * aspect), 0);
             seeds.push(Math.random());
         }
     }
@@ -82,7 +83,7 @@ const vertexShader = /* glsl */ `
     ) * 0.003;
     vSeed = aSeed;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-    gl_PointSize = (2.4 + aSeed * 1.4) * uPixelScale;
+    gl_PointSize = (1.6 + aSeed * 1.0) * uPixelScale;
   }
 `;
 
@@ -94,7 +95,7 @@ const fragmentShader = /* glsl */ `
     vec2 coord = gl_PointCoord - 0.5;
     float dist = length(coord);
     if (dist > 0.5) discard;
-    float alpha = smoothstep(0.5, 0.06, dist);
+    float alpha = smoothstep(0.5, 0.06, dist) * 0.35;
     vec3 color = mix(uColor, uAccent, step(0.82, vSeed));
     gl_FragColor = vec4(color, alpha);
   }
@@ -104,9 +105,10 @@ interface PortraitPointsProps {
     sample: Sample;
     colors: { foreground: string; primary: string };
     boundsRef: React.RefObject<HTMLDivElement | null>;
+    visibleRef: React.MutableRefObject<boolean>;
 }
 
-function PortraitPoints({ sample, colors, boundsRef }: PortraitPointsProps) {
+function PortraitPoints({ sample, colors, boundsRef, visibleRef }: PortraitPointsProps) {
     const materialRef = useRef<THREE.ShaderMaterial | null>(null);
     const hover = useRef({ x: 0, y: 0, state: 0 });
     const target = useRef({ x: 0, y: 0 });
@@ -149,6 +151,8 @@ function PortraitPoints({ sample, colors, boundsRef }: PortraitPointsProps) {
     }, [colors.foreground, colors.primary]);
 
     useFrame((_, delta) => {
+        // Skip GPU work entirely while the portrait is scrolled off-screen
+        if (!visibleRef.current) return;
         if (typeof document !== "undefined" && document.hidden) return;
         const material = materialRef.current;
         if (!material) return;
@@ -205,6 +209,7 @@ export default function ParticleImage({ className }: { className?: string }) {
     const tokens = useSignalTokens();
     const [sample, setSample] = useState<Sample | null>(null);
     const boundsRef = useRef<HTMLDivElement | null>(null);
+    const visibleRef = useRef(true);
 
     useEffect(() => {
         let alive = true;
@@ -219,6 +224,21 @@ export default function ParticleImage({ className }: { className?: string }) {
             alive = false;
         };
     }, []);
+
+    // Pause the render loop while the canvas is outside the viewport —
+    // previously it kept burning GPU cycles even 5000px down the page.
+    useEffect(() => {
+        const element = boundsRef.current;
+        if (!element || typeof IntersectionObserver === "undefined") return;
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                visibleRef.current = entry.isIntersecting;
+            },
+            { rootMargin: "80px" }
+        );
+        observer.observe(element);
+        return () => observer.disconnect();
+    }, [sample]);
 
     if (!mounted || !capable) return null;
 
@@ -235,6 +255,7 @@ export default function ParticleImage({ className }: { className?: string }) {
                         sample={sample}
                         colors={{ foreground: tokens.foreground, primary: tokens.primary }}
                         boundsRef={boundsRef}
+                        visibleRef={visibleRef}
                     />
                 </Canvas>
             )}

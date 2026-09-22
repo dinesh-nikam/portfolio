@@ -9,8 +9,12 @@ export async function GET() {
             orderBy: { lastVisitAt: "desc" },
             take: 100,
             include: {
+                // Bounded: score/journey logic only needs recent paths.
+                // Unbounded include would ship every pageview ever recorded.
                 pageViews: {
-                    select: { pathname: true }
+                    select: { pathname: true },
+                    orderBy: { createdAt: "desc" },
+                    take: 50,
                 }
             }
         });

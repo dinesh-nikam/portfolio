@@ -13,21 +13,41 @@ export const metadata: Metadata = createMetadata({
 export const revalidate = 3600;
 export const dynamic = 'force-dynamic';
 
+import { CURATED_FALLBACK_ARTICLES } from '@/lib/blog-generator';
+
 export default async function WritingPage() {
-    const articles = await prisma.article.findMany({
-        where: { status: 'PUBLISHED' },
-        orderBy: { publishedAt: 'desc' },
-        select: {
-            id: true,
-            title: true,
-            slug: true,
-            excerpt: true,
-            category: true,
-            readingTime: true,
-            publishedAt: true,
-            featured: true,
-        }
-    });
+    let articles: any[] = [];
+    try {
+        articles = await prisma.article.findMany({
+            where: { status: 'PUBLISHED' },
+            orderBy: { publishedAt: 'desc' },
+            select: {
+                id: true,
+                title: true,
+                slug: true,
+                excerpt: true,
+                category: true,
+                readingTime: true,
+                publishedAt: true,
+                featured: true,
+            }
+        });
+    } catch (e) {
+        console.warn("WritingPage: Database query error, using fallback articles", e);
+    }
+
+    if (!articles || articles.length === 0) {
+        articles = Object.values(CURATED_FALLBACK_ARTICLES).map((item, i) => ({
+            id: `art-${i + 1}`,
+            title: item.title,
+            slug: item.slug,
+            excerpt: item.excerpt,
+            category: item.category,
+            readingTime: item.readingTime,
+            publishedAt: item.publishedAt,
+            featured: item.featured,
+        }));
+    }
 
     return (
         <div className="min-h-screen bg-background text-foreground pt-32 pb-24 px-6 md:px-12 lg:px-24">

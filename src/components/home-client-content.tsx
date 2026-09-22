@@ -22,7 +22,7 @@ const ContactSection = dynamic(() =>
   import("@/components/sections/contact").then((m) => m.ContactSection)
 );
 
-/* Five premium sections loaded dynamically (client-only via ssr: false) */
+/* Premium sections loaded dynamically (client-only via ssr: false) */
 const StackRadar = dynamic(
   () => import("@/components/sections/stack-radar").then((m) => m.StackRadar),
   { ssr: false }
@@ -46,6 +46,9 @@ const TestimonialsSection = dynamic(
   () => import("@/components/sections/testimonials").then((m) => m.TestimonialsSection),
   { ssr: false }
 );
+const FAQSection = dynamic(
+  () => import("@/components/sections/faq").then((m) => m.FAQSection)
+);
 
 export function HomeClientContent() {
   return (
@@ -68,6 +71,9 @@ export function HomeClientContent() {
       <ServicesSection />
       {/* Social peer proof right before contacting Dinesh */}
       <TestimonialsSection />
+
+      {/* Comprehensive editorial FAQ with FAQPage schema */}
+      <FAQSection />
 
       <ContactSection />
     </>

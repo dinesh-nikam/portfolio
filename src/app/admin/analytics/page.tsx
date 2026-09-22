@@ -6,20 +6,50 @@ import { AreaChart, BarChart } from "@/components/admin/charts";
 export default function AnalyticsPage() {
     const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
 
     useEffect(() => {
+        let alive = true;
         fetch("/api/admin/visitors?range=30d")
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error("Request failed");
+                return res.json();
+            })
             .then(d => {
-                setData(d);
-                setLoading(false);
+                if (alive) {
+                    setData(d);
+                    setLoading(false);
+                }
+            })
+            .catch(() => {
+                if (alive) {
+                    setError(true);
+                    setLoading(false);
+                }
             });
+        return () => {
+            alive = false;
+        };
     }, []);
 
     if (loading) {
         return (
             <div className="flex items-center justify-center h-full">
                 <div className="w-8 h-8 rounded-full border-t-2 border-blue-500 animate-spin" />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex flex-col items-center justify-center h-full gap-4">
+                <p className="text-red-400 font-mono text-sm">Failed to load analytics data.</p>
+                <button
+                    onClick={() => window.location.reload()}
+                    className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition-colors"
+                >
+                    Retry
+                </button>
             </div>
         );
     }

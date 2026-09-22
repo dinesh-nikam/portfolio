@@ -1,12 +1,25 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Plus, Edit, Trash2, Eye, FileText } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, FileText, Sparkles, Loader2 } from 'lucide-react';
 
 export default function AdminWritingDashboard() {
     const [articles, setArticles] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [generating, setGenerating] = useState(false);
+    const router = useRouter();
+
+    // Admin APIs return 401 when the JWT session expires — redirect to login
+    // instead of silently showing a stale dashboard or swallowing the error.
+    const handleUnauthorized = (res: Response) => {
+        if (res.status === 401) {
+            router.push('/admin/login');
+            return true;
+        }
+        return false;
+    };
 
     useEffect(() => {
         fetchArticles();
@@ -15,9 +28,12 @@ export default function AdminWritingDashboard() {
     const fetchArticles = async () => {
         try {
             const res = await fetch('/api/admin/articles');
+            if (handleUnauthorized(res)) return;
             const data = await res.json();
             if (data.success) {
                 setArticles(data.articles);
+            } else if (data.error) {
+                console.error('Failed to fetch articles:', data.error);
             }
         } catch (error) {
             console.error('Failed to fetch articles:', error);
@@ -26,12 +42,38 @@ export default function AdminWritingDashboard() {
         }
     };
 
+    const handleAutoGenerate = async () => {
+        try {
+            setGenerating(true);
+            const res = await fetch('/api/articles/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({}),
+            });
+            if (handleUnauthorized(res)) return;
+            const data = await res.json();
+            if (data.success && data.article) {
+                setArticles((prev) => [data.article, ...prev]);
+                alert(`✨ Successfully generated & published: "${data.article.title}"`);
+            } else {
+                alert(data.error || 'Failed to generate article');
+            }
+        } catch (error: any) {
+            alert('Error generating article: ' + error.message);
+        } finally {
+            setGenerating(false);
+        }
+    };
+
     const deleteArticle = async (id: string) => {
         if (!confirm('Are you sure you want to delete this article?')) return;
         try {
             const res = await fetch(`/api/admin/articles/${id}`, { method: 'DELETE' });
+            if (handleUnauthorized(res)) return;
             if (res.ok) {
                 setArticles(articles.filter((a) => a.id !== id));
+            } else {
+                alert('Failed to delete the article. Please try again.');
             }
         } catch (error) {
             console.error('Error deleting article', error);
@@ -47,19 +89,33 @@ export default function AdminWritingDashboard() {
                         Writing <span className="text-white/40">Dashboard</span>
                     </h1>
                     <p className="text-sm text-white/50 font-mono mt-1">
-                        Manage your developer knowledge hub
+                        Manage developer publications & automated AI tech blogging
                     </p>
                 </div>
-                <Link
-                    href="/admin/writing/new"
-                    className="group relative flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-black font-medium text-sm overflow-hidden rounded-md transition-all hover:scale-[1.02] active:scale-[0.98]"
-                >
-                    <Plus className="w-4 h-4" />
-                    <span>New Article</span>
-                </Link>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={handleAutoGenerate}
+                        disabled={generating}
+                        className="group relative flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-primary text-black font-medium text-sm overflow-hidden rounded-md transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
+                    >
+                        {generating ? (
+                            <Loader2 className="w-4 h-4 animate-spin text-black" />
+                        ) : (
+                            <Sparkles className="w-4 h-4 text-black" />
+                        )}
+                        <span>{generating ? 'Generating AI Article...' : '⚡ Auto-Generate (AI)'}</span>
+                    </button>
+                    <Link
+                        href="/admin/writing/new"
+                        className="group relative flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-black font-medium text-sm overflow-hidden rounded-md transition-all hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                        <Plus className="w-4 h-4" />
+                        <span>New Article</span>
+                    </Link>
+                </div>
             </div>
 
-            {/* Stats/Overview (Optional later) */}
+            {/* Stats/Overview */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="p-5 rounded-lg border border-white/10 bg-black/40 backdrop-blur-md">
                     <p className="text-white/50 text-xs font-mono mb-1">TOTAL ARTICLES</p>
@@ -74,7 +130,7 @@ export default function AdminWritingDashboard() {
                 <div className="p-5 rounded-lg border border-white/10 bg-black/40 backdrop-blur-md">
                     <p className="text-white/50 text-xs font-mono mb-1">TOTAL VIEWS</p>
                     <p className="text-3xl font-light text-white">
-                        {articles.reduce((acc, curr) => acc + curr.views, 0)}
+                        {articles.reduce((acc, curr) => acc + (curr.views || 0), 0)}
                     </p>
                 </div>
             </div>
@@ -136,7 +192,7 @@ export default function AdminWritingDashboard() {
                                             </div>
                                         </td>
                                         <td className="px-5 py-4 text-white/50 text-xs font-mono">
-                                            {new Date(article.createdAt).toLocaleDateString()}
+                                            {new Date(article.createdAt || article.publishedAt || Date.now()).toLocaleDateString()}
                                         </td>
                                         <td className="px-5 py-4 text-right">
                                             <div className="flex items-center justify-end gap-2 opacity-50 group-hover:opacity-100 transition-opacity">

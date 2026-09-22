@@ -6,8 +6,24 @@ import prisma from '@/lib/prisma';
 
 export async function GET() {
     try {
+        // List view: never ship full article content — only the fields the
+        // dashboard table renders. Cuts the payload ~99% for large articles.
         const articles = await prisma.article.findMany({
             orderBy: { createdAt: 'desc' },
+            select: {
+                id: true,
+                title: true,
+                slug: true,
+                excerpt: true,
+                category: true,
+                readingTime: true,
+                featured: true,
+                status: true,
+                views: true,
+                publishedAt: true,
+                createdAt: true,
+                updatedAt: true,
+            },
         });
         return NextResponse.json({ success: true, articles });
     } catch (error) {

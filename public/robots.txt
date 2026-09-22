@@ -1,17 +1,14 @@
 User-agent: *
 Allow: /
-
-# Sitemap
-Sitemap: https://dineshnikam.com/sitemap.xml
-
-# Crawl-delay for polite crawling
-Crawl-delay: 10
-
-# Disallow admin and demo routes from indexing
 Disallow: /admin/
 Disallow: /api/
 Disallow: /globe-pulse-demo/
 Disallow: /motion-footer-demo/
 
-# Allow everything else
+User-agent: Googlebot
 Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://dineshnikam.com/sitemap.xml

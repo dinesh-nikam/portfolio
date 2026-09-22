@@ -137,7 +137,14 @@ export default function TubesBackground() {
         };
 
         const clock = new THREE.Clock();
+        let frameCount = 0;
         const loop = () => {
+            frameCount++;
+            // When user is scrolled deep into content, throttle background WebGL to conserve GPU
+            if (window.scrollY > window.innerHeight * 2 && frameCount % 2 !== 0) {
+                return;
+            }
+
             const dt = Math.min(clock.getDelta(), 0.05);
             const time = clock.elapsedTime;
 

@@ -74,7 +74,9 @@ export function WritingDashboardClient({ articles }: { articles: Article[] }) {
         ? displayedArticles.filter(a => a.id !== featuredArticle.id)
         : displayedArticles;
 
-    const categories = ['All', 'Engineering', 'Architecture', 'Web Development', 'Design Systems', 'Performance'];
+    // Derive categories from live articles so LLM-generated posts with new
+    // categories always get a filter chip (previously a hardcoded list).
+    const categories = ['All', ...Array.from(new Set(articles.map(a => a.category)))];
 
     // Group by year for timeline
     const articlesByYear = gridArticles.reduce((acc, article) => {

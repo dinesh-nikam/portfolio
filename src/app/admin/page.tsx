@@ -8,24 +8,51 @@ import { motion } from "framer-motion";
 export default function AdminOverview() {
     const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
 
     useEffect(() => {
+        let alive = true;
         fetch("/api/admin/overview")
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error("Request failed");
+                return res.json();
+            })
             .then(d => {
-                setData(d);
-                setLoading(false);
+                if (alive) {
+                    setData(d);
+                    setLoading(false);
+                }
             })
             .catch(e => {
                 console.error("Failed to fetch overview", e);
-                setLoading(false);
+                if (alive) {
+                    setError(true);
+                    setLoading(false);
+                }
             });
+        return () => {
+            alive = false;
+        };
     }, []);
 
     if (loading) {
         return (
             <div className="flex items-center justify-center h-full">
                 <div className="w-8 h-8 rounded-full border-t-2 border-blue-500 animate-spin" />
+            </div>
+        );
+    }
+
+    if (error || !data) {
+        return (
+            <div className="flex flex-col items-center justify-center h-full gap-4">
+                <p className="text-red-400 font-mono text-sm">Failed to load dashboard data.</p>
+                <button
+                    onClick={() => { setError(false); setLoading(true); window.location.reload(); }}
+                    className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition-colors"
+                >
+                    Retry
+                </button>
             </div>
         );
     }
@@ -65,7 +92,7 @@ export default function AdminOverview() {
                 />
                 <StatCard
                     title="Pending Messages"
-                    value={data?.contactMessagesCount || 0}
+                    value={data?.pendingMessagesCount ?? 0}
                     icon={MessageSquare}
                     delay={0.4}
                 />

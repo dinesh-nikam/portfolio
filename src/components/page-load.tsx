@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { markPageRevealed, sessionAlreadyLoaded } from "@/lib/page-reveal";
 
-const PRELOAD_DURATION = 1.35;
+const PRELOAD_DURATION = 0.65;
 
 export default function PageLoad() {
     const [visible, setVisible] = useState(false);
@@ -72,27 +72,27 @@ export default function PageLoad() {
             )
             .to(counterWrap, {
                 opacity: 0,
-                duration: 0.2,
+                duration: 0.15,
                 ease: "power1.out",
-            }, PRELOAD_DURATION - 0.12)
+            }, PRELOAD_DURATION - 0.1)
             .add(() => {
                 root.style.pointerEvents = "none";
                 markPageRevealed();
-            }, PRELOAD_DURATION - 0.12)
+            }, PRELOAD_DURATION - 0.1)
             .to(
                 top,
-                { yPercent: -101, duration: 0.75, ease: "power4.inOut" },
-                PRELOAD_DURATION - 0.1
+                { yPercent: -101, duration: 0.45, ease: "power4.inOut" },
+                PRELOAD_DURATION - 0.08
             )
             .to(
                 bottom,
-                { yPercent: 101, duration: 0.75, ease: "power4.inOut" },
-                PRELOAD_DURATION - 0.1
+                { yPercent: 101, duration: 0.45, ease: "power4.inOut" },
+                PRELOAD_DURATION - 0.08
             )
             .add(() => {
                 document.documentElement.classList.remove("preload-lock");
                 setDone(true);
-            }, "+=0.05");
+            }, "+=0.03");
 
         return () => {
             timeline.kill();

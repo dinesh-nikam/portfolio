@@ -23,6 +23,10 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
         featured: false,
         readingTime: 0,
     });
+    // Track the status the article had when loaded — we must NOT reset the
+    // publish date on every edit of an already-published article (that would
+    // corrupt the visible "published on" date and churn sitemap lastModified).
+    const [originalStatus, setOriginalStatus] = useState('DRAFT');
 
     useEffect(() => {
         const fetchArticle = async () => {
@@ -40,6 +44,7 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
                         featured: data.article.featured,
                         readingTime: data.article.readingTime,
                     });
+                    setOriginalStatus(data.article.status);
                 } else {
                     setError('Failed to load article details.');
                 }
@@ -61,7 +66,7 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
-        let finalValue = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
+        const finalValue = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
 
         setFormData((prev) => ({
             ...prev,
@@ -81,10 +86,16 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
         setError('');
 
         const readingTime = calculateReadingTime(formData.content);
+        const wasPublished = originalStatus === 'PUBLISHED';
         const dataToSubmit = {
             ...formData,
             readingTime,
-            publishedAt: formData.status === 'PUBLISHED' ? new Date().toISOString() : null,
+            // Only stamp a NEW publish date when transitioning DRAFT → PUBLISHED.
+            // For already-published articles omit the key entirely (JSON.stringify
+            // drops `undefined`) so the server preserves the original publish date.
+            publishedAt: formData.status === 'PUBLISHED'
+                ? (wasPublished ? undefined : new Date().toISOString())
+                : null,
         };
 
         try {

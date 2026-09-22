@@ -7,6 +7,34 @@ const secretKey = new TextEncoder().encode(process.env.ADMIN_JWT_SECRET || "fall
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
+    // ── API guard ─────────────────────────────────────────────
+    // Every admin API route and the AI article generator require a valid
+    // admin session cookie. Previously these endpoints were completely
+    // open — anyone could create/delete articles (SEO spam vector).
+    if (
+        (pathname.startsWith("/api/admin") && !pathname.startsWith("/api/admin/auth")) ||
+        pathname.startsWith("/api/articles/generate")
+    ) {
+        const token = request.cookies.get("admin_token")?.value;
+
+        try {
+            const { payload } = await jwtVerify(token ?? "", secretKey);
+            if (payload.admin !== true) {
+                return NextResponse.json(
+                    { success: false, error: "Unauthorized" },
+                    { status: 401 }
+                );
+            }
+            return NextResponse.next();
+        } catch {
+            return NextResponse.json(
+                { success: false, error: "Unauthorized" },
+                { status: 401 }
+            );
+        }
+    }
+
+    // ── Page guard ────────────────────────────────────────────
     // Protect /admin routes, but allow /admin/login
     if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
         const token = request.cookies.get("admin_token")?.value;
@@ -18,7 +46,7 @@ export async function middleware(request: NextRequest) {
         try {
             await jwtVerify(token, secretKey);
             return NextResponse.next();
-        } catch (error) {
+        } catch {
             // Invalid token
             return NextResponse.redirect(new URL("/admin/login", request.url));
         }
@@ -28,5 +56,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/admin/:path*"],
+    matcher: ["/admin/:path*", "/api/admin/:path*", "/api/articles/generate"],
 };
+

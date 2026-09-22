@@ -9,32 +9,56 @@ export default function MessagesInbox() {
     const [messages, setMessages] = useState<any[]>([]);
     const [activeMessage, setActiveMessage] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
 
     // Filters
     const [searchQuery, setSearchQuery] = useState("");
     const [locationFilter, setLocationFilter] = useState("all");
 
     useEffect(() => {
+        let alive = true;
         fetch("/api/admin/messages")
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error("Request failed");
+                return res.json();
+            })
             .then(d => {
+                if (!alive) return;
                 setMessages(d.messages || []);
                 if (d.messages && d.messages.length > 0) {
                     setActiveMessage(d.messages[0]);
                 }
                 setLoading(false);
+            })
+            .catch(() => {
+                if (alive) {
+                    setError(true);
+                    setLoading(false);
+                }
             });
+        return () => {
+            alive = false;
+        };
     }, []);
 
     const updateMessage = async (id: string, updates: any) => {
+        // Optimistic update…
+        const previous = messages.find(m => m.id === id);
         setMessages(msgs => msgs.map(m => m.id === id ? { ...m, ...updates } : m));
         if (activeMessage?.id === id) setActiveMessage({ ...activeMessage, ...updates });
 
-        await fetch("/api/admin/messages", {
+        // …with rollback if the server rejects (e.g. expired admin session).
+        const res = await fetch("/api/admin/messages", {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ id, ...updates }),
         });
+
+        if (!res.ok && previous) {
+            setMessages(msgs => msgs.map(m => m.id === id ? previous : m));
+            if (activeMessage?.id === id) setActiveMessage(previous);
+            alert("Could not save the change — your session may have expired. Please sign in again.");
+        }
     };
 
     const getLeadScore = (msg: any) => {
@@ -78,6 +102,20 @@ export default function MessagesInbox() {
         return (
             <div className="flex items-center justify-center h-full">
                 <div className="w-8 h-8 rounded-full border-t-2 border-blue-500 animate-spin" />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex flex-col items-center justify-center h-full gap-4">
+                <p className="text-red-400 font-mono text-sm">Failed to load messages.</p>
+                <button
+                    onClick={() => window.location.reload()}
+                    className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition-colors"
+                >
+                    Retry
+                </button>
             </div>
         );
     }
