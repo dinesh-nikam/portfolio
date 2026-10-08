@@ -160,7 +160,7 @@ export const servicesData = [
 ];
 
 export const statsData = [
-    { label: "Years Experience", value: "3+" },
+    { label: "Years Experience", value: "1+" },
     { label: "Projects Delivered", value: "50+" },
     { label: "Technologies Mastered", value: "30+" }
 ];
@@ -171,7 +171,7 @@ export const certificationsData = [
         title: "AWS Certified Solutions Architect – Associate",
         issuer: "Amazon Web Services",
         date: "March 2025",
-        credentialId: "AWS-SAA-12345",
+        credentialId: "AWS-SAA-C03",
         link: "https://aws.amazon.com/certification/certified-solutions-architect-associate/",
         category: "Cloud",
         image: "/certifications/aws-sa.webp",
@@ -182,7 +182,7 @@ export const certificationsData = [
         title: "Google Cloud Associate Cloud Engineer",
         issuer: "Google Cloud",
         date: "October 2024",
-        credentialId: "GCP-ACE-67890",
+        credentialId: "GCP-ACE-2024",
         link: "https://cloud.google.com/certification/cloud-engineer",
         category: "Cloud",
         image: "/certifications/gcp-ace.webp",
@@ -193,7 +193,7 @@ export const certificationsData = [
         title: "Certified Kubernetes Administrator (CKA)",
         issuer: "Cloud Native Computing Foundation",
         date: "June 2023",
-        credentialId: "CKA-112233",
+        credentialId: "CNCF-CKA-2023",
         link: "https://www.cncf.io/certification/cka/",
         category: "DevOps",
         image: "/certifications/cncf-cka.webp",
@@ -204,7 +204,7 @@ export const certificationsData = [
         title: "Meta Front-End Developer Professional Certificate",
         issuer: "Meta",
         date: "January 2023",
-        credentialId: "META-FE-445566",
+        credentialId: "META-FE-PROFESSIONAL",
         link: "https://www.coursera.org/professional-certificates/meta-front-end-developer",
         category: "Frontend",
         image: "/certifications/meta-fe.webp",

@@ -9,6 +9,7 @@ const contactSchema = z.object({
     email: z.string().email("Invalid email").max(100),
     message: z.string().min(1, "Message is required").max(5000),
     project: z.string().max(200).optional(),
+    _gotcha: z.string().optional(),
     visitorId: z.string().uuid().optional().nullable(),
     referer: z.string().max(1000).optional().nullable(),
     utmSource: z.string().max(100).optional().nullable(),
@@ -25,7 +26,13 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Invalid payload format", details: parseResult.error.format() }, { status: 400 });
         }
 
-        const { name, email, message, project, visitorId, referer, utmSource, utmCampaign, utmMedium } = parseResult.data;
+        const { name, email, message, project, _gotcha, visitorId, referer, utmSource, utmCampaign, utmMedium } = parseResult.data;
+
+        // Bot honeypot trap: if _gotcha is populated, return silent success without processing
+        if (_gotcha && _gotcha.trim().length > 0) {
+            console.warn("Contact Form Bot Trapped via honeypot:", { email, name });
+            return NextResponse.json({ success: true, message: "Thank you for reaching out!" });
+        }
 
         // Extract Device Intelligence
         const headersList = await headers();
@@ -62,30 +69,48 @@ export async function POST(req: Request) {
             }
         }
 
-        // Save visitor intelligence to the upgraded Prisma schema
-        const newMessage = await prisma.contactMessage.create({
-            data: {
+        // Save visitor intelligence to the upgraded Prisma schema with resilient fallback
+        let savedMessage = null;
+        try {
+            savedMessage = await prisma.contactMessage.create({
+                data: {
+                    name,
+                    email,
+                    message: project ? `[Project: ${project}]\n\n${message}` : message,
+                    visitorId: visitorId || undefined,
+                    ipAddress,
+                    country: country !== "Unknown" ? country : undefined,
+                    city: city !== "Unknown" ? city : undefined,
+                    region: region !== "Unknown" ? region : undefined,
+                    latitude,
+                    longitude,
+                    browser,
+                    os,
+                    deviceType,
+                    referer: referer || undefined,
+                    utmSource: utmSource || undefined,
+                    utmCampaign: utmCampaign || undefined,
+                    utmMedium: utmMedium || undefined,
+                },
+            });
+        } catch (dbErr) {
+            console.warn("Contact route: Database write failed (service offline or unreachable), logging lead to server:", {
+                timestamp: new Date().toISOString(),
                 name,
                 email,
-                message: project ? `[Project: ${project}]\n\n${message}` : message,
-                visitorId: visitorId || undefined,
+                project,
+                message,
                 ipAddress,
-                country: country !== "Unknown" ? country : undefined,
-                city: city !== "Unknown" ? city : undefined,
-                region: region !== "Unknown" ? region : undefined,
-                latitude,
-                longitude,
-                browser,
-                os,
-                deviceType,
-                referer: referer || undefined,
-                utmSource: utmSource || undefined,
-                utmCampaign: utmCampaign || undefined,
-                utmMedium: utmMedium || undefined,
-            },
-        });
+                error: dbErr instanceof Error ? dbErr.message : String(dbErr),
+            });
+            // Graceful continuation so potential client receives success confirmation
+        }
 
-        return NextResponse.json({ success: true, message: newMessage });
+        return NextResponse.json({
+            success: true,
+            message: "Thank you for reaching out! Your message has been received.",
+            data: savedMessage ? { id: savedMessage.id } : undefined,
+        });
     } catch (error) {
         console.error("Contact Form Error", error);
         return NextResponse.json({ error: "Failed to submit message" }, { status: 500 });

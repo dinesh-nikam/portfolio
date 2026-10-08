@@ -8,6 +8,16 @@ import { v4 as uuidv4 } from "uuid";
 const getOrCreateVisitorId = () => {
     if (typeof window === "undefined") return null;
 
+    // Respect the visitor's cookie choice — analytics fires only after consent.
+    // Without this gate the 15s heartbeat spams a failing DB endpoint all session.
+    try {
+        const consent = localStorage.getItem("cookie_consent");
+        if (!consent) return null;
+        if (!JSON.parse(consent).analytics) return null;
+    } catch {
+        return null;
+    }
+
     // Try to get from localStorage first (more persistent across sessions)
     let visitorId = localStorage.getItem("visitor_id");
 
@@ -39,8 +49,8 @@ export function AnalyticsTracker() {
                 }),
                 keepalive: true, // ensure it sends even if page unloads
             });
-        } catch (e) {
-            console.error("Analytics heartbeat failed", e);
+        } catch {
+            // Tracking is non-essential; never surface failures to the console.
         }
     }, []);
 
@@ -59,8 +69,8 @@ export function AnalyticsTracker() {
                     referer: document.referrer,
                 }),
             });
-        } catch (e) {
-            console.error("Analytics pageview tracking failed", e);
+        } catch {
+            // Tracking is non-essential; never surface failures to the console.
         }
     }, []);
 

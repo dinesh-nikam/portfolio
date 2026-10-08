@@ -310,7 +310,7 @@ const TOPIC_CATEGORIES = [
 
 function buildPrompt(chosenCategory: string): string {
     return `
-You are a distinguished Senior Principal Software Engineer and Technical Author with 30+ years of experience.
+You are a distinguished Software Engineer and Technical Author with 1+ year of professional experience.
 Write an exceptionally high quality, deep, authoritative technical blog post.
 Preferred Category: ${chosenCategory}.
 Rules:

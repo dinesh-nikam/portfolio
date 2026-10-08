@@ -3,7 +3,7 @@ import { AvailabilityStatus } from "@/components/contact/availability-status";
 import { ContactForm } from "@/components/contact/contact-form";
 import { ContactCard } from "@/components/contact/contact-card";
 import { SocialLinks } from "@/components/contact/social-links";
-import { NavigationBar } from "@/components/navigation-bar";
+import { NavigationBarV2 } from "@/components/navigation-bar-v2";
 import { Mail, Briefcase } from "lucide-react";
 import { createMetadata } from "@/lib/metadata";
 import { JsonLdScript, buildContactPageSchema } from "@/components/seo/json-ld";
@@ -16,9 +16,9 @@ export const metadata = createMetadata({
 
 export default function ContactPage() {
     return (
-        <main className="min-h-screen pt-32 pb-24 relative overflow-hidden bg-background">
+        <main id="main-content" className="min-h-screen pt-32 pb-24 relative overflow-hidden bg-background">
             <JsonLdScript data={buildContactPageSchema()} />
-            <NavigationBar />
+            <NavigationBarV2 />
 
             <div className="container mx-auto px-6 md:px-12 relative z-10">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">

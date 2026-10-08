@@ -4,130 +4,8 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
-import { CaseStudyModal, type CaseStudyData } from "./case-study-modal";
-
-const caseStudies: CaseStudyData[] = [
-    {
-        id: "cybersherlock",
-        num: "01",
-        title: "Cybersherlock",
-        tagline: "IP intelligence visualization and predictive cybersecurity modeling platform.",
-        role: "Frontend Architecture & WebGL",
-        year: "2025",
-        client: "Cybersecurity Enterprise",
-        image: "/cybersherlock.webp",
-        tech: ["Next.js", "React", "D3.js", "WebGL", "Tailwind CSS", "MongoDB"],
-        liveUrl: "#",
-        overview:
-            "Cybersherlock transforms massive global IP streams and threat telemetry into low-latency, interactive visual topologies. Built to serve network security architects requiring instant situational awareness.",
-        problem:
-            "Threat analysts previously combated thousands of unindexed tabular logs with 4+ second query response times, causing delayed vulnerability detection during active scans.",
-        approach:
-            "Engineered a high-density canvas & WebGL data visualizer with client-side indexing and predictive edge querying, reducing rendering overhead by 70%.",
-        design: {
-            description:
-                "Clean dark-field editorial dashboard with custom monospace telemetrics and high-contrast IP nodes designed for 24/7 security operation centers.",
-            highlights: [
-                "Dynamic WebGL node graph with fluid camera zoom",
-                "Sub-frame micro-interactions for instant threat inspection",
-                "Editorial telemetric typographic hierarchy",
-            ],
-        },
-        engineering: {
-            architecture:
-                "Hybrid Next.js architecture running WebGL shader clusters coupled with edge-cached aggregation pipelines.",
-            decisions: [
-                "Migrated DOM-heavy SVG graphs to GPU-accelerated WebGL buffers",
-                "Implemented memory-efficient ring buffers for live threat ingestion",
-                "Optimized Web Worker pipelines for parallel IP resolution",
-            ],
-        },
-        result: {
-            metric: "60 FPS @ 50K+ Nodes",
-            summary: "Eliminated visual lag across all high-density network visualizer sessions.",
-        },
-    },
-    {
-        id: "hp-connect",
-        num: "02",
-        title: "HP Connect",
-        tagline: "Enterprise visitor management ecosystem with real-time omnichannel verification.",
-        role: "Full-Stack Engineering & System Architecture",
-        year: "2024",
-        client: "Commercial Enterprise",
-        image: "/hpconnect.webp",
-        tech: ["Next.js", "Node.js", "WebSockets", "MongoDB", "Twilio API"],
-        liveUrl: "#",
-        overview:
-            "HP Connect is an automated identity and check-in system designed for high-throughput corporate campuses. It manages visitor registration, QR-based badge issuance, and automated host notifications across WhatsApp and Gmail.",
-        problem:
-            "Physical paper visitor logs caused lobby bottlenecks during peak hours, privacy non-compliance, and zero auditing capabilities for corporate facility managers.",
-        approach:
-            "Architected an end-to-end contactless workflow using dynamic QR token validation, instant WebSockets kiosk synchronization, and asynchronous notification queues.",
-        design: {
-            description:
-                "Tactile, minimal kiosk interface built for touch terminals with high-contrast inputs, deliberate negative space, and unambiguous visual confirmations.",
-            highlights: [
-                "Zero-learning-curve kiosk registration flow completed in under 20 seconds",
-                "Dynamic QR digital pass dispatched directly to mobile wallets",
-                "Real-time facility occupancy and egress monitoring",
-            ],
-        },
-        engineering: {
-            architecture:
-                "Distributed Node.js microservices with event-driven WebSockets and resilient external messaging webhooks.",
-            decisions: [
-                "Stateless cryptographic QR tokens for sub-100ms offline scanner verification",
-                "Optimistic UI updates with offline queuing on terminal clients",
-                "Strict tenant isolation with automated compliance log pruning",
-            ],
-        },
-        result: {
-            metric: "< 20s Check-In Time",
-            summary: "Reduced lobby registration queues by 85% across campus deployment.",
-        },
-    },
-    {
-        id: "ithpl-platform",
-        num: "03",
-        title: "ITHPL Corporate Platform",
-        tagline: "High-throughput web infrastructure and corporate engineering showcase.",
-        role: "Full-Stack Development & Performance Engineering",
-        year: "2024",
-        client: "ITHPL Group",
-        image: "/ithplwebsite.webp",
-        tech: ["Next.js", "PHP", "MySQL", "Tailwind CSS", "JavaScript", "REST APIs"],
-        liveUrl: "https://ithpl.com",
-        overview:
-            "Enterprise web portal engineering for an industrial infrastructure leader, highlighting operational facilities, technical capabilities, and global industrial projects.",
-        problem:
-            "Legacy monolithic architecture suffered from sluggish page loads, outdated presentation, and brittle content maintenance.",
-        approach:
-            "Modernized the presentation layer with modern responsive layouts, sub-second asset delivery, and a flexible content architecture.",
-        design: {
-            description:
-                "Monochrome editorial aesthetic with confident typography, razor-thin hairlines, and restrained industrial imagery.",
-            highlights: [
-                "Editorial project showcases with structured technical metrics",
-                "Fluid responsive layouts optimized for all corporate devices",
-                "Consistent brand identity communicating engineering scale",
-            ],
-        },
-        engineering: {
-            architecture:
-                "Modernized front-end layer delivering optimized static chunks backed by secure high-availability application services.",
-            decisions: [
-                "99+ Google Lighthouse performance score achieved across all public routes",
-                "Streamlined database schemas reducing query load by 45%",
-                "Automated CI/CD pipeline ensuring zero-downtime rolling updates",
-            ],
-        },
-        result: {
-            metric: "99+ Lighthouse Score",
-            summary: "Transformed brand perception with ultra-fast page loading.",
-        },
-    },
-];
+import { CaseStudyModal } from "./case-study-modal";
+import { caseStudies, type CaseStudyData } from "@/lib/case-studies";
 
 export function ProjectsSection() {
     const [selectedProject, setSelectedProject] = useState<CaseStudyData | null>(null);
@@ -143,7 +21,7 @@ export function ProjectsSection() {
                     <div>
                         <span className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.3em] text-primary">
                             <span className="h-1.5 w-1.5 bg-primary" aria-hidden />
-                            04 / SELECTED WORK
+                            02 / SELECTED WORK
                         </span>
                         <h2 className="mt-3 font-display text-4xl font-medium tracking-tight text-foreground sm:text-5xl md:text-6xl">
                             Engineered for Precision.
@@ -225,10 +103,10 @@ export function ProjectsSection() {
                                             </div>
                                             <div className="flex flex-col gap-1">
                                                 <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                                                    CLIENT
+                                                    DOMAIN
                                                 </span>
                                                 <span className="font-mono text-xs font-medium text-foreground">
-                                                    {project.client}
+                                                    {project.domain}
                                                 </span>
                                             </div>
                                         </div>

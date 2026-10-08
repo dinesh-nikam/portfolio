@@ -31,7 +31,7 @@ export async function GET(req: Request) {
             };
         });
 
-        pageViews.forEach((pv: any) => {
+        pageViews.forEach((pv: { createdAt: Date }) => {
             const dateStr = pv.createdAt.toISOString().split("T")[0];
             const dataPoint = chartData.find(d => d.date === dateStr);
             if (dataPoint) dataPoint.views++;
@@ -44,7 +44,7 @@ export async function GET(req: Request) {
         });
 
         const geoData: Record<string, number> = {};
-        visitorsWithLocation.forEach((v: any) => {
+        visitorsWithLocation.forEach((v: { country: string | null }) => {
             if (v.country && v.country !== "Unknown") {
                 geoData[v.country] = (geoData[v.country] || 0) + 1;
             }

@@ -136,7 +136,8 @@ export default function TubesBackground() {
             parallax.targetY = (event.clientY / window.innerHeight - 0.5) * 2;
         };
 
-        const clock = new THREE.Clock();
+        let lastTime = performance.now();
+        const startTime = lastTime;
         let frameCount = 0;
         const loop = () => {
             frameCount++;
@@ -145,8 +146,10 @@ export default function TubesBackground() {
                 return;
             }
 
-            const dt = Math.min(clock.getDelta(), 0.05);
-            const time = clock.elapsedTime;
+            const now = performance.now();
+            const dt = Math.min((now - lastTime) / 1000, 0.05);
+            lastTime = now;
+            const time = (now - startTime) / 1000;
 
             velocity.current += (velocity.target - velocity.current) * 0.06 * (dt * 60);
             velocity.target *= 0.94;
@@ -171,7 +174,7 @@ export default function TubesBackground() {
             if (document.hidden) {
                 gsap.ticker.remove(loop);
             } else {
-                clock.getDelta();
+                lastTime = performance.now();
                 gsap.ticker.add(loop);
             }
         };

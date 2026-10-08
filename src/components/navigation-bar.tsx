@@ -71,12 +71,14 @@ export function NavigationBar() {
     }, [mobileMenuOpen]);
 
     const navLinks = [
-        { name: "Work", href: "/#work", index: "01" },
-        { name: "Skills", href: "/#skills", index: "02" },
-        { name: "Experience", href: "/#experience", index: "03" },
-        { name: "Writing", href: "/writing", index: "04" },
-        { name: "Resume", href: "/resume", index: "05" },
-        { name: "Contact", href: "/contactme", index: "06" },
+        { name: "The Story", href: "/story", index: "00" },
+        { name: "The Lab", href: "/playground", index: "01" },
+        { name: "Work", href: "/#work", index: "02" },
+        { name: "Skills", href: "/#skills", index: "03" },
+        { name: "Experience", href: "/#experience", index: "04" },
+        { name: "Writing", href: "/writing", index: "05" },
+        { name: "Resume", href: "/resume", index: "06" },
+        { name: "Contact", href: "/contactme", index: "07" },
     ];
 
     const handleNavigation = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -101,6 +103,8 @@ export function NavigationBar() {
     };
 
     const isActive = (href: string) => {
+        if (href === "/story") return pathname.startsWith("/story");
+        if (href === "/playground") return pathname.startsWith("/playground");
         if (href === "/writing") return pathname.startsWith("/writing");
         if (href === "/resume") return pathname === "/resume";
         if (href === "/contactme") return pathname === "/contactme";

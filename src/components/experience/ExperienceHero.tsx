@@ -39,9 +39,9 @@ function AnimatedCounter({ value, label }: { value: string; label: string }) {
             ref={ref}
             className="flex flex-col items-start justify-center p-6 bg-card border border-border rounded-md hover:border-primary/40 transition-all duration-300 min-w-[150px]"
         >
-            <h4 className="text-3xl font-extrabold text-foreground mb-1 font-mono tracking-tight">
+            <div className="text-3xl font-extrabold text-foreground mb-1 font-mono tracking-tight" role="status" aria-label={`${count}${suffix} ${label}`}>
                 {count}{suffix}
-            </h4>
+            </div>
             <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">
                 {label}
             </p>

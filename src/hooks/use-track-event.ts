@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 
 export function useTrackEvent() {
-    const trackEvent = useCallback(async (eventName: string, eventData?: Record<string, any>) => {
+    const trackEvent = useCallback(async (eventName: string, eventData?: Record<string, unknown>) => {
         // We get visitor_id from localStorage assuming AnalyticsTracker already initialized it
         const visitorId = typeof window !== "undefined" ? localStorage.getItem("visitor_id") : null;
         if (!visitorId) return;

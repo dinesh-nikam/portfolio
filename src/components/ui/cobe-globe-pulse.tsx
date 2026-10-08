@@ -159,7 +159,7 @@ export function GlobePulse({
           key={m.id}
           style={{
             position: "absolute",
-            ["positionAnchor" as any]: `--cobe-${m.id}`,
+            ["positionAnchor" as keyof React.CSSProperties]: `--cobe-${m.id}`,
             bottom: "anchor(center)",
             left: "anchor(center)",
             translate: "-50% 50%",

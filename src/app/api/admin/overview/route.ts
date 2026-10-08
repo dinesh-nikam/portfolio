@@ -30,7 +30,7 @@ export async function GET() {
         });
 
         const avgSessionDuration = sessions.length > 0
-            ? Math.floor(sessions.reduce((acc: number, curr: any) => acc + curr.duration, 0) / sessions.length)
+            ? Math.floor(sessions.reduce((acc: number, curr: { duration: number | null }) => acc + (curr.duration || 0), 0) / sessions.length)
             : 0;
 
         return NextResponse.json({

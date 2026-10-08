@@ -1,10 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useCapable } from "@/hooks/use-capable";
 import { SkillsMarquee } from "./SkillsMarquee";
 import { SkillsCategories } from "./SkillsCategories";
-import SkillsGlobe from "./SkillsGlobe";
 import { allSkills } from "./constants";
 
 function StackLedger() {
@@ -34,8 +32,10 @@ function StackLedger() {
 }
 
 export function SkillsSection() {
-    const { capable } = useCapable(1024);
-
+    /* The draggable WebGL skills globe was removed in the experience audit:
+       orbiting skill chips are a demo, not evidence of skill — the editorial
+       ledger below communicates the same stack with zero GPU cost and works
+       identically for keyboard, touch, and reduced-motion users. */
     return (
         <section id="skills" className="noise-overlay relative w-full overflow-hidden bg-background py-20 lg:py-32">
             <div className="relative z-10 mx-auto max-w-7xl px-6 sm:px-8 md:px-12">
@@ -47,7 +47,7 @@ export function SkillsSection() {
                         transition={{ duration: 0.8 }}
                     >
                         <span className="mb-4 block font-mono text-sm uppercase tracking-widest text-primary">
-                            02 / Network
+                            03 / Network
                         </span>
                         <h2 className="text-display mb-4">Tech Ecosystem</h2>
                     </motion.div>
@@ -71,21 +71,15 @@ export function SkillsSection() {
                         transition={{ duration: 1 }}
                         className="order-1 flex min-h-[400px] w-full items-center justify-center lg:order-1"
                     >
-                        {capable ? (
-                            <div className="h-[440px] w-full">
-                                <SkillsGlobe skills={allSkills} />
-                            </div>
-                        ) : (
-                            <StackLedger />
-                        )}
+                        <StackLedger />
                     </motion.div>
 
                     <motion.div
-                        initial={{ opacity: 0, x: 50 }}
-                        whileInView={{ opacity: 1, x: 0 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true, margin: "-100px" }}
                         transition={{ duration: 0.8, delay: 0.2 }}
-                        className="order-2 flex w-full flex-col justify-center lg:order-2"
+                        className="order-2 flex w-full max-w-full overflow-hidden flex-col justify-center lg:order-2"
                     >
                         <SkillsCategories />
                     </motion.div>
@@ -96,7 +90,7 @@ export function SkillsSection() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-50px" }}
                     transition={{ duration: 0.8, delay: 0.4 }}
-                    className="relative w-full"
+                    className="relative w-full max-w-full overflow-hidden"
                 >
                     <div className="absolute -top-8 left-1/2 h-16 w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-foreground/20 to-transparent" />
                     <SkillsMarquee />

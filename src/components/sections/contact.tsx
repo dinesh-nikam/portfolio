@@ -1,23 +1,32 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { ArrowUpRight, Copy, Check, Mail, Github, Linkedin, Twitter } from "lucide-react";
+import { ArrowUpRight, Copy, Check, Mail } from "lucide-react";
 
 export function ContactSection() {
-    const [copied, setCopied] = useState(false);
-    const email = "dineshnikam990@gmail.com";
+    const [copied, setCopied] = useState<"idle" | "copied" | "failed">("idle");
+    const email = "nikamdinesh362@gmail.com";
 
-    const handleCopyEmail = () => {
-        navigator.clipboard.writeText(email);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+    const handleCopyEmail = async () => {
+        try {
+            // Clipboard API needs a secure context; file:// and plain http
+            // deployments would throw. mailto fallback keeps the action alive.
+            if (!navigator.clipboard || !window.isSecureContext) {
+                throw new Error("Clipboard unavailable");
+            }
+            await navigator.clipboard.writeText(email);
+            setCopied("copied");
+        } catch {
+            setCopied("failed");
+        } finally {
+            setTimeout(() => setCopied("idle"), 2000);
+        }
     };
 
     return (
         <section
             id="contact"
-            className="relative w-full border-t border-border px-6 pt-32 pb-16 md:px-12 lg:px-20 xl:px-24"
+            className="relative w-full overflow-hidden border-t border-border px-4 sm:px-6 pt-32 pb-16 md:px-12 lg:px-20 xl:px-24"
         >
             <div className="mx-auto flex w-full max-w-7xl flex-col gap-24">
                 {/* Contact Header with Animated Vermilion Indicator */}
@@ -33,7 +42,7 @@ export function ContactSection() {
 
                 {/* Massive Headline */}
                 <div className="max-w-5xl">
-                    <h2 className="font-display text-5xl font-medium leading-[0.95] tracking-tight text-foreground sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl">
+                    <h2 className="font-display text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-medium leading-[0.95] tracking-tight text-foreground">
                         LET&apos;S BUILD
                         <br />
                         SOMETHING
@@ -59,19 +68,25 @@ export function ContactSection() {
                             <div className="flex flex-wrap items-center gap-4">
                                 <a
                                     href={`mailto:${email}`}
-                                    className="font-display text-2xl font-medium text-foreground transition-colors hover:text-primary sm:text-3xl"
+                                    className="font-display text-lg sm:text-2xl md:text-3xl font-medium text-foreground transition-colors hover:text-primary break-all sm:break-normal"
                                 >
-                                    dineshnikam990@gmail.com
+                                    nikamdinesh362@gmail.com
                                 </a>
                                 <button
                                     onClick={handleCopyEmail}
                                     className="flex h-9 items-center gap-2 rounded-sm border border-border px-3 font-mono text-xs text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
                                     title="Copy email to clipboard"
+                                    aria-live="polite"
                                 >
-                                    {copied ? (
+                                    {copied === "copied" ? (
                                         <>
                                             <Check className="h-3.5 w-3.5 text-primary" />
                                             <span>COPIED</span>
+                                        </>
+                                    ) : copied === "failed" ? (
+                                        <>
+                                            <Mail className="h-3.5 w-3.5" />
+                                            <span>USE MAILTO</span>
                                         </>
                                     ) : (
                                         <>
@@ -95,22 +110,24 @@ export function ContactSection() {
                                 <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                             </a>
                             <a
-                                href="https://linkedin.com/in/dinesh-nikam"
+                                href="https://linkedin.com/in/dinesh-nikam3/"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="group flex items-center gap-1.5 text-foreground transition-colors hover:text-primary"
                             >
                                 <span>LINKEDIN</span>
                                 <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                                <span className="sr-only">(opens in a new tab)</span>
                             </a>
                             <a
-                                href="https://twitter.com"
+                                href="https://twitter.com/dinesh_nikam3"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="group flex items-center gap-1.5 text-foreground transition-colors hover:text-primary"
                             >
                                 <span>X / TWITTER</span>
                                 <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                                <span className="sr-only">(opens in a new tab)</span>
                             </a>
                         </div>
                     </div>

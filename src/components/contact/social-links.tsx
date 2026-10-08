@@ -28,7 +28,7 @@ export function SocialLinks() {
 
     return (
         <div className="mt-12 pt-12 border-t border-border/50">
-            <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-6">Connect across the web</h4>
+            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-6">Connect across the web</h3>
             <motion.div
                 variants={containerVariants}
                 initial="hidden"

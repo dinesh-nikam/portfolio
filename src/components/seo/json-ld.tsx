@@ -158,6 +158,11 @@ interface ArticleSchemaProps {
   image?: string;
 }
 
+/** Per-article OG image URL (served by the opengraph-image file convention). */
+export function articleOgImageUrl(slug: string): string {
+  return `${SITE_URL}/writing/${slug}/opengraph-image`;
+}
+
 export function buildArticleSchema({
   title,
   excerpt,
@@ -165,7 +170,7 @@ export function buildArticleSchema({
   dateModified,
   slug,
   author = SITE_NAME,
-  image = `${OG_IMAGE_URL}`,
+  image = articleOgImageUrl(slug),
 }: ArticleSchemaProps) {
   const url = `${SITE_URL}/writing/${slug}`;
   return {

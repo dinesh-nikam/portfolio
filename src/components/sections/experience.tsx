@@ -73,7 +73,7 @@ export function ExperienceSection() {
                     <div>
                         <span className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.3em] text-primary">
                             <span className="h-1.5 w-1.5 bg-primary" aria-hidden />
-                            03 / EXPERIENCE
+                            06 / EXPERIENCE
                         </span>
                         <h2 className="mt-3 font-display text-4xl font-medium tracking-tight text-foreground sm:text-5xl md:text-6xl">
                             Career & Trajectory.

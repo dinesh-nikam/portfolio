@@ -37,9 +37,9 @@ export function ContactCard({ title, description, icon, href, delay = 0 }: Conta
             </div>
 
             <div className="relative z-10 mt-6">
-                <h3 className="text-xl font-semibold text-foreground group-hover:text-primary transition-colors duration-300">
+                <h2 className="text-xl font-semibold text-foreground group-hover:text-primary transition-colors duration-300">
                     {title}
-                </h3>
+                </h2>
                 <p className="mt-2 text-sm text-muted-foreground transition-colors duration-300">
                     {description}
                 </p>

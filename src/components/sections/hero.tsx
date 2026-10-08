@@ -6,45 +6,15 @@ import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion
 import { ArrowDownRight } from "lucide-react";
 import { usePageRevealed } from "@/hooks/use-page-revealed";
 import HeroScene from "@/components/three/hero-scene";
-import ParticleImage from "@/components/particle-image";
 
 /* ------------------------------------------------------------------ */
-/* "Register plate" — archival portrait with crop marks                */
+/* Hero — one focal point.                                             */
+/* Hierarchy: eyebrow → NAME → value statement → CTAs → portrait.      */
+/* The wireframe sculpture (HeroScene) is the single ambient layer;    */
+/* the particle overlay, floating talk-widget, system badge, spec      */
+/* strip and highlighter chips were removed: they competed with the    */
+/* name and had no narrative purpose.                                  */
 /* ------------------------------------------------------------------ */
-function RegisterPlate() {
-    return (
-        <figure className="relative z-10 flex w-72 flex-col xl:w-80">
-            <div className="relative aspect-[4/5] overflow-hidden border border-border bg-card shadow-2xl">
-                {/* Base high-contrast editorial portrait */}
-                <Image
-                    src="/my.webp"
-                    alt="Portrait of Dinesh Nikam"
-                    fill
-                    sizes="(max-width: 1280px) 288px, 320px"
-                    priority
-                    className="object-cover transition-transform duration-700 ease-out hover:scale-[1.03] [filter:grayscale(0.85)_contrast(1.1)]"
-                />
-
-                {/* Interactive particle shimmer overlay */}
-                <ParticleImage className="absolute inset-0" />
-
-                {/* Archival Crop / register marks */}
-                <span aria-hidden className="pointer-events-none absolute left-0 top-0 h-4 w-4 border-l border-t border-foreground/50" />
-                <span aria-hidden className="pointer-events-none absolute right-0 top-0 h-4 w-4 border-r border-t border-foreground/50" />
-                <span aria-hidden className="pointer-events-none absolute bottom-0 left-0 h-4 w-4 border-b border-l border-foreground/50" />
-                <span aria-hidden className="pointer-events-none absolute bottom-0 right-0 h-4 w-4 border-b border-r border-foreground/50" />
-
-                {/* Subtle vermilion accent bottom border */}
-                <span aria-hidden className="pointer-events-none absolute bottom-0 left-0 right-0 h-[2px] bg-primary/50" />
-            </div>
-
-            <figcaption className="mt-3 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                <span>Fig. 01 — Dinesh Nikam</span>
-                <span>Est. 2022</span>
-            </figcaption>
-        </figure>
-    );
-}
 
 export function HeroSection() {
     const containerRef = useRef<HTMLElement>(null);
@@ -66,7 +36,7 @@ export function HeroSection() {
             ref={containerRef}
             className="relative flex min-h-[92vh] w-full flex-col justify-center overflow-hidden px-6 pt-28 pb-20 md:px-12 lg:min-h-screen lg:px-20 xl:px-24"
         >
-            {/* Ambient 3D background wireframe sculpture & dust halo */}
+            {/* Ambient 3D wireframe sculpture — the one allowed ambient layer */}
             <HeroScene />
 
             <div className="mx-auto w-full max-w-7xl">
@@ -77,7 +47,7 @@ export function HeroSection() {
                         style={prefersReducedMotion ? undefined : { y: textY, opacity: textOpacity }}
                         className="relative z-10 flex flex-col items-start lg:col-span-7"
                     >
-                        {/* Eyebrow — 0.15s */}
+                        {/* Eyebrow */}
                         <motion.div
                             initial={{ opacity: 0, y: 12 }}
                             animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
@@ -88,49 +58,47 @@ export function HeroSection() {
                             Full Stack Developer — Pune, India
                         </motion.div>
 
-                        {/* Headline — 0.30s */}
-                        <motion.div
+                        {/* Name — the single largest element on the page */}
+                        <motion.h1
                             initial={{ opacity: 0, y: 20 }}
                             animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                             transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
-                            className="mt-7"
+                            className="mt-7 font-display text-[3.5rem] font-medium leading-[0.92] tracking-tight text-foreground sm:text-[5rem] md:text-[6rem] lg:text-[6.5rem] xl:text-[7.5rem]"
                         >
-                            <h1 className="font-display text-[3.5rem] font-medium leading-[0.92] tracking-tight text-foreground sm:text-[5rem] md:text-[6rem] lg:text-[6.5rem] xl:text-[7.5rem]">
-                                Dinesh
-                                <br />
-                                Nikam<span className="text-primary">.</span>
-                            </h1>
-                        </motion.div>
+                            Dinesh
+                            <br />
+                            Nikam<span className="text-primary">.</span>
+                        </motion.h1>
 
-                        {/* Role — 0.50s */}
+                        {/* Value statement */}
                         <motion.p
-                            initial={{ opacity: 0, y: 14 }}
-                            animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
-                            transition={{ duration: 0.7, ease: "easeOut", delay: 0.5 }}
-                            className="mt-6 font-mono text-xs uppercase tracking-[0.25em] text-muted-foreground sm:text-sm"
-                        >
-                            Full Stack Developer
-                        </motion.p>
-
-                        {/* Statement — 0.70s */}
-                        <motion.div
                             initial={{ opacity: 0, y: 16 }}
                             animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
-                            transition={{ duration: 0.8, ease: "easeOut", delay: 0.7 }}
-                            className="mt-5 max-w-lg"
+                            transition={{ duration: 0.8, ease: "easeOut", delay: 0.55 }}
+                            className="mt-6 max-w-xl text-lg leading-relaxed text-foreground sm:text-xl"
                         >
-                            <p className="text-base leading-relaxed text-muted-foreground sm:text-lg">
-                                I design and engineer premium digital experiences
-                                where typography, motion, and technology meet.
-                            </p>
-                        </motion.div>
+                            I design and engineer fast, resilient web applications —
+                            where typography, motion, and architecture are built
+                            with intent, not decoration.
+                        </motion.p>
 
-                        {/* CTAs — 0.90s */}
+                        <motion.p
+                            initial={{ opacity: 0, y: 16 }}
+                            animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+                            transition={{ duration: 0.8, ease: "easeOut", delay: 0.65 }}
+                            className="mt-3 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg"
+                        >
+                            Currently building enterprise platforms at ITHPL and
+                            consulting on Next.js, cloud architecture, and creative
+                            engineering.
+                        </motion.p>
+
+                        {/* CTAs — two, both real */}
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={revealed ? { opacity: 1 } : { opacity: 0 }}
-                            transition={{ duration: 0.7, delay: 0.9 }}
-                            className="mt-9 flex flex-wrap items-center gap-8"
+                            transition={{ duration: 0.7, delay: 0.85 }}
+                            className="mt-8 flex flex-wrap items-center gap-6 sm:gap-8"
                         >
                             <a
                                 href="#work"
@@ -143,39 +111,12 @@ export function HeroSection() {
                                 href="/contactme"
                                 className="font-mono text-xs uppercase tracking-widest text-foreground transition-colors duration-300 hover:text-primary"
                             >
-                                Contact Me →
+                                Start a Conversation →
                             </a>
-                        </motion.div>
-
-                        {/* Spec strip — 1.05s */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 12 }}
-                            animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-                            transition={{ duration: 0.8, ease: "easeOut", delay: 1.05 }}
-                            className="mt-14 grid w-full max-w-xl grid-cols-2 gap-x-8 gap-y-5 border-t border-border pt-6 sm:grid-cols-4"
-                        >
-                            {[
-                                { label: "Location", value: "Pune, IN" },
-                                { label: "Focus", value: "UI · Motion · Code" },
-                                { label: "Stack", value: "Next.js · React · Node" },
-                                { label: "Status", value: "Open to work" },
-                            ].map((item) => (
-                                <div key={item.label} className="flex flex-col gap-1.5">
-                                    <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-muted-foreground">
-                                        {item.label}
-                                    </span>
-                                    <span className="flex items-center gap-2 text-sm font-medium">
-                                        {item.label === "Status" && (
-                                            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" aria-hidden />
-                                        )}
-                                        {item.value}
-                                    </span>
-                                </div>
-                            ))}
                         </motion.div>
                     </motion.div>
 
-                    {/* ═══ RIGHT: Portrait Register Plate (Col 8–12) ═══ */}
+                    {/* ═══ RIGHT: Portrait (Col 8–12) — editorial, no floating badges ═══ */}
                     <motion.div
                         style={prefersReducedMotion ? undefined : { y: plateY }}
                         initial={{ opacity: 0 }}
@@ -183,7 +124,22 @@ export function HeroSection() {
                         transition={{ duration: 1.2, ease: "easeOut", delay: 0.7 }}
                         className="relative z-10 hidden items-center justify-center lg:col-span-5 lg:flex"
                     >
-                        <RegisterPlate />
+                        <figure className="relative z-10 w-72 xl:w-80">
+                            <div className="relative aspect-[4/5] overflow-hidden border border-border bg-card shadow-2xl">
+                                <Image
+                                    src="/my.webp"
+                                    alt="Portrait of Dinesh Nikam"
+                                    fill
+                                    sizes="(max-width: 1280px) 288px, 320px"
+                                    priority
+                                    className="object-cover [filter:grayscale(0.85)_contrast(1.1)]"
+                                />
+                            </div>
+                            <figcaption className="mt-4 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                                <span>Fig. 01 — Dinesh Nikam</span>
+                                <span>Pune, IN</span>
+                            </figcaption>
+                        </figure>
                     </motion.div>
 
                 </div>

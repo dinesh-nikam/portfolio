@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
 export async function GET(request: Request) {
     try {
@@ -8,7 +9,7 @@ export async function GET(request: Request) {
         const search = searchParams.get('search');
         const featured = searchParams.get('featured');
 
-        const where: any = {
+        const where: Prisma.ArticleWhereInput = {
             status: 'PUBLISHED',
         };
 

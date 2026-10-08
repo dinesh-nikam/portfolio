@@ -5,30 +5,20 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { certificationsData } from "@/lib/data";
 import { Award, ChevronLeft, ChevronRight, ExternalLink, Calendar, ShieldCheck, Eye } from "lucide-react";
-import { useCapable } from "@/hooks/use-capable";
-import Certifications3DWall from "@/components/ui/certifications-3d-wall";
+import { BrandIcon } from "@/components/icons/brand-icon";
 
 // Editorial Credential Card
 function CertificationCard({ cert, onSelect }: { cert: typeof certificationsData[0]; onSelect: (img: string) => void }) {
-    // Render corresponding issuer logo (monochrome)
+    // Render corresponding issuer logo (real brand icons)
     const renderIssuerLogo = (iconType: string) => {
-        switch (iconType) {
-            case "aws":
-            case "gcp":
-            case "k8s":
-            case "react":
-                return (
-                    <div className="w-10 h-10 rounded-md bg-muted/30 border border-border flex items-center justify-center shrink-0">
-                        <span className="text-muted-foreground font-bold text-xs tracking-wider">{iconType === "k8s" ? "CNCF" : iconType === "react" ? "META" : iconType.toUpperCase()}</span>
-                    </div>
-                );
-            default:
-                return (
-                    <div className="w-10 h-10 rounded-md bg-muted/30 border border-border flex items-center justify-center shrink-0">
-                        <span className="text-muted-foreground font-bold text-xs tracking-wider">CERT</span>
-                    </div>
-                );
-        }
+        const iconMap: Record<string, string> = {
+            aws: "aws",
+            gcp: "googlecloud",
+            k8s: "kubernetes",
+            react: "meta",
+        };
+        const icon = iconMap[iconType] || iconType;
+        return <BrandIcon name={icon} size={32} className="text-foreground" />;
     };
 
     return (
@@ -109,13 +99,14 @@ function CertificationCard({ cert, onSelect }: { cert: typeof certificationsData
 }
 
 export function CertificationsSection() {
-    const { capable } = useCapable(1024);
+    /* The WebGL "vault ring" was removed in the experience audit: credentials
+       are documents, not specimens to orbit. The accessible slider below shows
+       the same four certificates with zero GPU cost, real focus states, and
+       keyboard-operable arrows. */
     const sliderRef = useRef<HTMLDivElement>(null);
     const [selectedCertImage, setSelectedCertImage] = useState<string | null>(null);
     const [showLeftArrow, setShowLeftArrow] = useState(false);
     const [showRightArrow, setShowRightArrow] = useState(true);
-    const [wallFocus, setWallFocus] = useState<number | null>(null);
-    const [wallHovered, setWallHovered] = useState<number | null>(null);
 
     const checkScrollButtons = () => {
         if (!sliderRef.current) return;
@@ -214,53 +205,13 @@ export function CertificationsSection() {
                         transition={{ delay: 0.4, duration: 0.6 }}
                         className="hidden md:flex flex-col gap-3 border-l border-border pl-8 font-mono text-[10px] uppercase tracking-[0.25em] text-foreground/50"
                     >
-                        <span className="flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-primary/80" /> Vault {String(certificationsData.length).padStart(2, "0")} · Live</span>
-                        <span>{String(certificationsData.length).padStart(2, "0")} specimens held</span>
-                        <span>Hover to study · Click to zoom</span>
+                        <span className="flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-primary/80" /> {String(certificationsData.length).padStart(2, "0")} credentials</span>
+                        <span>Swipe to browse · Click to zoom</span>
                     </motion.div>
                 </div>
 
-                {/* Capable → interactive 3D cert ring; otherwise the horizontal slider */}
-                {capable ? (
-                    <div className="mx-auto my-24 flex h-[68vh] min-h-[420px] w-full max-w-5xl flex-col gap-6">
-                        <Certifications3DWall
-                            certs={certificationsData}
-                            focusIndex={wallFocus}
-                            onFocusChange={setWallFocus}
-                            onHoverChange={setWallHovered}
-                            onSelect={setSelectedCertImage}
-                        />
-                        <div
-                            role="tablist"
-                            aria-label="Accession index — hover a specimen to study it, click to zoom"
-                            className="grid grid-cols-4 gap-px border border-border/80 bg-border/50"
-                        >
-                            {certificationsData.map((cert, index) => {
-                                const active = wallHovered === index || wallFocus === index;
-                                return (
-                                    <button
-                                        key={cert.id}
-                                        role="tab"
-                                        aria-selected={active}
-                                        onMouseEnter={() => setWallFocus(index)}
-                                        onMouseLeave={() => setWallFocus(null)}
-                                        onClick={() => setSelectedCertImage(cert.image)}
-                                        className={`group min-w-0 bg-background px-3 py-3 text-left transition-colors duration-300 ${active ? "bg-primary/5" : "hover:bg-muted/20"}`}
-                                    >
-                                        <span className={`block font-mono text-[9px] uppercase tracking-[0.3em] ${active ? "text-primary" : "text-muted-foreground/60"}`}>
-                                            Nº {String(index + 1).padStart(2, "0")}
-                                        </span>
-                                        <span className={`mt-1 block truncate text-xs font-medium ${active ? "text-foreground" : "text-muted-foreground"}`}>
-                                            {cert.title}
-                                        </span>
-                                        <span className="mt-0.5 block truncate text-[10px] text-muted-foreground/70">{cert.issuer}</span>
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
-                ) : (
-                    <div className="relative w-full overflow-visible my-12 group/slider">
+                {/* Horizontal credential slider — replaced the WebGL vault ring */}
+                <div className="relative w-full overflow-visible my-12 group/slider">
 
                     {/* Dynamic Floating Arrows */}
                     <AnimatePresence>
@@ -312,8 +263,7 @@ export function CertificationsSection() {
                             </div>
                         ))}
                     </div>
-                    </div>
-                )}
+                </div>
 
                 {/* Interaction indicator */}
                 <motion.p
@@ -323,7 +273,7 @@ export function CertificationsSection() {
                     transition={{ delay: 0.6 }}
                     className="text-center text-muted-foreground/50 text-xs tracking-wider font-mono uppercase mt-4"
                 >
-                    {capable ? "Hover a frame or index entry to study · Click to zoom" : "Swipe to browse · Click preview to zoom"}
+                    {"Swipe to browse · Click preview to zoom"}
                 </motion.p>
             </div>
 

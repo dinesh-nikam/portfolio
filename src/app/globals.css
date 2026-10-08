@@ -64,7 +64,7 @@
   --secondary-foreground: #141210;
 
   --muted: #ece7dc;
-  --muted-foreground: #6e675b;
+  --muted-foreground: #5a5449;
 
   --accent: #f3e0d3;
   --accent-foreground: #141210;
@@ -125,6 +125,10 @@ html.has-custom-cursor * {
   * {
     @apply border-border;
   }
+  html, body {
+    overflow-x: clip;
+    max-width: 100vw;
+  }
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1; /* Optimize typography rendering */
@@ -146,10 +150,17 @@ html.has-custom-cursor * {
   color: var(--primary-foreground);
 }
 
-/* Smooth motion handling */
+/* Smooth motion handling — smooth anchor scrolling only for users who
+   have not requested reduced motion; everyone else jumps instantly. */
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 }
 

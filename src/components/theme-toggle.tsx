@@ -34,7 +34,7 @@ export default function ThemeToggle() {
             type="button"
             onClick={toggle}
             aria-label="Toggle color theme"
-            className="inline-flex h-9 w-9 items-center justify-center border border-border text-foreground transition-colors duration-300 hover:border-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-foreground"
+            className="inline-flex min-h-[44px] min-w-[44px] h-11 w-11 items-center justify-center border border-border text-foreground transition-colors duration-300 hover:border-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-foreground"
         >
             <span ref={iconWrapRef} className="inline-flex items-center justify-center">
                 {isDark ? (

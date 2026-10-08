@@ -24,7 +24,7 @@ export async function GET() {
             take: 10,
         });
 
-        const engagement = projectViews.map((pv: any) => ({
+        const engagement = projectViews.map((pv: { pathname: string; _count: { pathname: number }; _avg: { timeSpent: number | null } }) => ({
             path: pv.pathname,
             views: pv._count.pathname,
             avgTime: pv._avg.timeSpent ? Math.floor(pv._avg.timeSpent) : 0,

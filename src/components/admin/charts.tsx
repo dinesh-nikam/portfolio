@@ -13,7 +13,7 @@ import {
 } from "recharts";
 
 interface ChartProps {
-    data: any[];
+    data: Record<string, unknown>[];
     categories: string[];
     index: string;
     colors?: string[];

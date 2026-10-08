@@ -65,6 +65,22 @@ await sharp(mark).resize(180, 180).png().toFile(path.join(PUB, "apple-touch-icon
 await sharp(mark).resize(32, 32).png().toFile(path.join(PUB, "favicon-32.png"));
 console.log("✓ favicon set (32/180/192/512)");
 
+/* ---------- 3b. Maskable PWA icons (full-bleed, content inside safe zone) ----------
+ * Maskable icons are cropped to arbitrary shapes (circle, squircle) by the
+ * platform, so: no baked-in rounded corners, and all meaningful content kept
+ * within the inner 80% safe-zone circle (r = 204.8 on a 512 canvas).
+ */
+const markMaskableSvg = (size) => `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#141210"/>
+  <circle cx="256" cy="256" r="150" fill="none" stroke="#ede9df" stroke-opacity="0.5" stroke-width="7"/>
+  <text x="256" y="292" fill="#ede9df" font-family="Georgia, 'Times New Roman', serif" font-size="104" font-weight="700" text-anchor="middle" letter-spacing="4">DN</text>
+  <circle cx="256" cy="128" r="13" fill="#e4572e"/>
+</svg>`;
+const markMaskable = Buffer.from(markMaskableSvg(512));
+await sharp(markMaskable).resize(512, 512).png().toFile(path.join(PUB, "icon-512-maskable.png"));
+await sharp(markMaskable).resize(192, 192).png().toFile(path.join(PUB, "icon-192-maskable.png"));
+console.log("✓ maskable icon set (192/512)");
+
 /* ---------- 4. Keep all original source assets safe (never delete) ---------- */
 console.log("✓ All original assets preserved. High-performance WebP and PNG assets generated alongside originals.");
 console.log("Done.");

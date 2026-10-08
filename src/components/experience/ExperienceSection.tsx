@@ -33,6 +33,8 @@ export function ExperienceSection() {
                 <div className="w-full max-w-6xl mx-auto py-24 px-6 flex flex-col items-center justify-center">
                     <motion.a
                         href="https://drive.google.com/file/d/15sOTRbV-1NFzoL3Ko_Bh5iKd43L1yuyF/view?usp=drivesdk"
+                        target="_blank"
+                        rel="noopener noreferrer"
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}

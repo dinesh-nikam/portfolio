@@ -6,7 +6,6 @@ import { AnalyticsTracker } from "@/components/analytics-tracker";
 import { CookieConsent } from "@/components/cookie-consent";
 import PageLoad from "@/components/page-load";
 import CustomCursor from "@/components/custom-cursor";
-import VfxCursor from "@/components/vfx-cursor";
 import BackgroundProvider from "@/components/background-provider";
 import { JsonLdScript, buildPersonSchema, buildWebSiteSchema } from "@/components/seo/json-ld";
 import { baseMetadata } from "@/lib/metadata";
@@ -35,7 +34,10 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata = baseMetadata;
 
 export const viewport = {
-  themeColor: "#0a0a0a",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f4f1ea" },
+    { media: "(prefers-color-scheme: dark)", color: "#121110" },
+  ],
 };
 
 export default function RootLayout({
@@ -54,6 +56,12 @@ export default function RootLayout({
         className={`${bodoniModa.variable} ${schibstedGrotesk.variable} ${jetbrainsMono.variable} antialiased bg-background text-foreground font-sans`}
         suppressHydrationWarning
       >
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[500] focus:border focus:border-foreground focus:bg-background focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:uppercase focus:tracking-widest"
+        >
+          Skip to content
+        </a>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
@@ -62,7 +70,6 @@ export default function RootLayout({
           <LenisProvider>
             <PageLoad />
             <CustomCursor />
-            <VfxCursor />
             <AnalyticsTracker />
             <BackgroundProvider>{children}</BackgroundProvider>
             <CookieConsent />

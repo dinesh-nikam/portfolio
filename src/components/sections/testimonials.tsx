@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { MessageSquare, Quote } from "lucide-react";
 
 interface Testimonial {
@@ -48,8 +48,50 @@ const testimonials: Testimonial[] = [
 ];
 
 export function TestimonialsSection() {
+    const prefersReducedMotion = useReducedMotion();
     // Duplicate testimonials array to enable seamless infinite scroller loop
     const doubledTestimonials = [...testimonials, ...testimonials];
+
+    if (prefersReducedMotion) {
+        // Reduced motion: a static grid replaces the moving track.
+        return (
+            <section className="w-full py-28 px-6 md:px-12 lg:px-24 bg-background relative overflow-hidden">
+                <div className="max-w-7xl mx-auto relative z-10">
+                    <div className="flex flex-col gap-4 mb-16 text-center max-w-2xl mx-auto">
+                        <div className="flex items-center justify-center gap-2">
+                            <MessageSquare className="w-4 h-4 text-primary" />
+                            <span className="font-mono text-xs tracking-[0.25em] text-primary uppercase font-semibold">
+                                Testimonials
+                            </span>
+                        </div>
+                        <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground leading-none">
+                            Peer Endorsements
+                        </h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {testimonials.map((item) => (
+                            <div key={item.id} className="flex flex-col justify-between p-8 rounded-md bg-card border border-border">
+                                <p className="text-muted-foreground/90 text-sm sm:text-base leading-relaxed font-light">
+                                    &quot;{item.content}&quot;
+                                </p>
+                                <div className="mt-6 flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-md bg-muted/30 border border-border flex items-center justify-center font-bold text-primary text-sm">
+                                        {item.initials}
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="font-bold text-foreground text-base">{item.name}</span>
+                                        <span className="text-xs text-muted-foreground font-mono">
+                                            {item.role} @ <span className="text-primary">{item.company}</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section className="w-full py-28 px-6 md:px-12 lg:px-24 bg-background relative overflow-hidden">

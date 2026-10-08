@@ -1,50 +1,64 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { allSkills } from "./constants";
+import { BrandIcon } from "@/components/icons/brand-icon";
 
-const SkillBadge = ({ skill }: { skill: string }) => {
+const SkillBadge = ({ skill }: { skill: { name: string; icon: string } }) => {
     return (
         <motion.div whileHover={{ scale: 1.05, y: -5 }} className="group relative shrink-0">
             <div className="relative flex items-center justify-center gap-3 rounded-md border border-border/70 bg-muted/30 px-5 py-3 md:px-6 md:py-4">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden />
-                <span className="text-sm font-medium tracking-wide text-foreground md:text-base">{skill}</span>
+                <BrandIcon name={skill.icon} size={16} className="text-primary shrink-0" />
+                <span className="text-sm font-medium tracking-wide text-foreground md:text-base">{skill.name}</span>
             </div>
         </motion.div>
     );
 };
 
 export function SkillsMarquee() {
+    const prefersReducedMotion = useReducedMotion();
     const marqueeItems = [...allSkills, ...allSkills];
     const marqueeItemsRow2 = [...allSkills].reverse();
     const marqueeRow2 = [...marqueeItemsRow2, ...marqueeItemsRow2];
+
+    // Reduced motion: no infinite scroll — render one static row as a
+    // wrapped badge cloud instead of a moving track.
+    if (prefersReducedMotion) {
+        return (
+            <div className="flex flex-wrap gap-4 py-10">
+                {allSkills.map((skill) => (
+                    <SkillBadge key={skill.name} skill={skill} />
+                ))}
+            </div>
+        );
+    }
 
     return (
         <div className="relative flex w-full flex-col gap-6 overflow-hidden py-10">
             <div className="pointer-events-none absolute bottom-0 left-0 top-0 z-10 w-24 bg-gradient-to-r from-background to-transparent" />
             <div className="pointer-events-none absolute bottom-0 right-0 top-0 z-10 w-24 bg-gradient-to-l from-background to-transparent" />
 
-            <div className="flex w-fit group">
+            <div className="flex w-full max-w-full overflow-hidden group">
                 <motion.div
                     className="flex gap-4 pr-4 group-hover:[animation-play-state:paused]"
                     animate={{ x: ["0%", "-50%"] }}
                     transition={{ ease: "linear", duration: 40, repeat: Infinity }}
                 >
-                    {marqueeItems.map((skillObj, idx) => (
-                        <SkillBadge key={`row1-${idx}`} skill={skillObj.name} />
+                    {marqueeItems.map((skill, idx) => (
+                        <SkillBadge key={`row1-${idx}`} skill={skill} />
                     ))}
                 </motion.div>
             </div>
 
-            <div className="flex w-fit group">
+            <div className="flex w-full max-w-full overflow-hidden group">
                 <motion.div
                     className="flex gap-4 pr-4 group-hover:[animation-play-state:paused]"
                     initial={{ x: "-50%" }}
                     animate={{ x: ["-50%", "0%"] }}
                     transition={{ ease: "linear", duration: 45, repeat: Infinity }}
                 >
-                    {marqueeRow2.map((skillObj, idx) => (
-                        <SkillBadge key={`row2-${idx}`} skill={skillObj.name} />
+                    {marqueeRow2.map((skill, idx) => (
+                        <SkillBadge key={`row2-${idx}`} skill={skill} />
                     ))}
                 </motion.div>
             </div>

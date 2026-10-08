@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { createMetadata } from '@/lib/metadata';
 import prisma from '@/lib/prisma';
 import { WritingDashboardClient } from '@/components/writing/writing-dashboard-client';
-import { NavigationBar } from '@/components/navigation-bar';
+import { NavigationBarV2 } from '@/components/navigation-bar-v2';
 import { JsonLdScript, buildBlogListingSchema } from '@/components/seo/json-ld';
 
 export const metadata: Metadata = createMetadata({
@@ -15,8 +15,19 @@ export const dynamic = 'force-dynamic';
 
 import { CURATED_FALLBACK_ARTICLES } from '@/lib/blog-generator';
 
+interface ArticleItem {
+    id: string;
+    title: string;
+    slug: string;
+    excerpt: string;
+    category: string;
+    readingTime: number;
+    publishedAt: Date | null;
+    featured: boolean;
+}
+
 export default async function WritingPage() {
-    let articles: any[] = [];
+    let articles: ArticleItem[] = [];
     try {
         articles = await prisma.article.findMany({
             where: { status: 'PUBLISHED' },
@@ -50,11 +61,11 @@ export default async function WritingPage() {
     }
 
     return (
-        <div className="min-h-screen bg-background text-foreground pt-32 pb-24 px-6 md:px-12 lg:px-24">
-            <NavigationBar />
+        <main id="main-content" className="min-h-screen bg-background text-foreground pt-32 pb-24 px-6 md:px-12 lg:px-24">
+            <NavigationBarV2 />
             {/* Structured Data: Blog / CollectionPage schema */}
             <JsonLdScript data={buildBlogListingSchema()} />
             <WritingDashboardClient articles={articles} />
-        </div>
+        </main>
     );
 }

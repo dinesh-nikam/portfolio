@@ -14,11 +14,13 @@ export function ContactForm() {
         email: "",
         project: "",
         message: "",
+        _gotcha: "",
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { id, value } = e.target;
-        setFormData(prev => ({ ...prev, [id]: value }));
+        const { id, name, value } = e.target;
+        const fieldName = name || id;
+        setFormData(prev => ({ ...prev, [fieldName]: value }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -47,6 +49,7 @@ export function ContactForm() {
                     email: formData.email,
                     project: formData.project || undefined,
                     message: formData.message,
+                    _gotcha: formData._gotcha || undefined,
                     visitorId: visitorId || undefined,
                     referer,
                     utmSource,
@@ -62,7 +65,7 @@ export function ContactForm() {
             }
 
             setIsSuccess(true);
-            setFormData({ name: "", email: "", project: "", message: "" });
+            setFormData({ name: "", email: "", project: "", message: "", _gotcha: "" });
             setTimeout(() => setIsSuccess(false), 5000);
         } catch (err) {
             setError(err instanceof Error ? err.message : "An unexpected error occurred");
@@ -79,6 +82,18 @@ export function ContactForm() {
             className="w-full relative group"
         >
             <form onSubmit={handleSubmit} className="relative flex flex-col space-y-6 bg-card border border-border p-8 rounded-md shadow-xl">
+                {/* Honeypot field for bot protection */}
+                <input
+                    type="text"
+                    name="_gotcha"
+                    id="_gotcha"
+                    value={formData._gotcha}
+                    onChange={handleChange}
+                    tabIndex={-1}
+                    autoComplete="off"
+                    className="hidden"
+                    aria-hidden="true"
+                />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="relative group/field">
@@ -86,6 +101,7 @@ export function ContactForm() {
                             type="text"
                             required
                             id="name"
+                            name="name"
                             value={formData.name}
                             onChange={handleChange}
                             className="peer w-full bg-muted/30 border border-border rounded-md px-4 py-3.5 pt-6 text-foreground outline-none focus:border-primary/50 focus:bg-muted/50 transition-all duration-300"
@@ -101,6 +117,7 @@ export function ContactForm() {
                             type="email"
                             required
                             id="email"
+                            name="email"
                             value={formData.email}
                             onChange={handleChange}
                             className="peer w-full bg-muted/30 border border-border rounded-md px-4 py-3.5 pt-6 text-foreground outline-none focus:border-primary/50 focus:bg-muted/50 transition-all duration-300"
@@ -116,6 +133,7 @@ export function ContactForm() {
                     <input
                         type="text"
                         id="project"
+                        name="project"
                         value={formData.project}
                         onChange={handleChange}
                         className="peer w-full bg-muted/30 border border-border rounded-md px-4 py-3.5 pt-6 text-foreground outline-none focus:border-primary/50 focus:bg-muted/50 transition-all duration-300"
@@ -130,6 +148,7 @@ export function ContactForm() {
                     <textarea
                         required
                         id="message"
+                        name="message"
                         rows={4}
                         value={formData.message}
                         onChange={handleChange}

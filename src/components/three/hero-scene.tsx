@@ -49,7 +49,7 @@ function HaloPoints({ color }: { color: string }) {
                 size={0.022}
                 sizeAttenuation
                 transparent
-                opacity={0.55}
+                opacity={0.35}
                 depthWrite={false}
             />
         </points>
@@ -115,16 +115,16 @@ function WireScene({ visibleRef }: { visibleRef: { current: boolean } }) {
                                 color={colors.foreground}
                                 wireframe
                                 transparent
-                                opacity={0.2}
+                                opacity={0.13}
                             />
                         </mesh>
                         <mesh ref={ringRef} rotation={[Math.PI / 2.15, 0.3, 0]}>
                             <torusGeometry args={[2.05, 0.009, 8, 128]} />
-                            <meshBasicMaterial color={colors.primary} transparent opacity={0.7} />
+                            <meshBasicMaterial color={colors.primary} transparent opacity={0.28} />
                         </mesh>
                         <mesh rotation={[-Math.PI / 2.4, 0.9, Math.PI / 5]}>
                             <torusGeometry args={[2.4, 0.005, 8, 128]} />
-                            <meshBasicMaterial color={colors.muted} transparent opacity={0.5} />
+                            <meshBasicMaterial color={colors.muted} transparent opacity={0.25} />
                         </mesh>
                     </group>
                 </group>

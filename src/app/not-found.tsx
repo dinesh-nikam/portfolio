@@ -19,7 +19,7 @@ export const metadata = createMetadata({
 
 export default function NotFound() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background pt-24 pb-32 px-6 md:px-12">
+    <main id="main-content" className="flex min-h-screen items-center justify-center bg-background pt-24 pb-32 px-6 md:px-12">
       <JsonLdScript
         data={buildBreadcrumbSchema([
           { name: "Home", item: SITE_URL },

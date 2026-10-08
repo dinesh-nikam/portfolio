@@ -1,6 +1,7 @@
 import { Shield, ShieldAlert, BookOpen, Database, Globe, Mail } from "lucide-react";
 import Link from "next/link";
 import { createMetadata } from "@/lib/metadata";
+import { NavigationBarV2 } from "@/components/navigation-bar-v2";
 
 export const metadata = createMetadata({
   title: "Privacy Policy",
@@ -13,14 +14,15 @@ export default function PrivacyPolicyPage() {
     const lastUpdated = "March 10, 2025";
 
     return (
-        <div className="min-h-screen w-full bg-background antialiased pt-32 pb-24 overflow-hidden">
+        <main id="main-content" className="min-h-screen w-full bg-background antialiased pt-32 pb-24 overflow-hidden">
+            <NavigationBarV2 />
 
             <div className="max-w-4xl mx-auto px-6 relative z-10">
 
                 {/* Header */}
                 <div className="mb-16 space-y-4">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-4">
-                        <Shield className="w-4 h-4" /> Legal & Compliance
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary text-primary-foreground text-xs font-semibold tracking-wider uppercase mb-4">
+                        <Shield className="w-3.5 h-3.5" /> Legal & Compliance
                     </div>
                     <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-foreground mb-4">Privacy Policy</h1>
                     <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed">
@@ -131,7 +133,7 @@ export default function PrivacyPolicyPage() {
                                 If you have questions about this Privacy Policy or how your data is handled, you may reach out directly.
                             </p>
                             <div className="bg-muted/30 p-6 rounded-md border border-border mt-6 inline-block">
-                                <p className="font-mono text-sm text-foreground">Email: <a href="mailto:nikamdinesh362@gmail.com" className="text-primary hover:text-primary/80 hover:underline">nikamdinesh362@gmail.com</a></p>
+                                <p className="font-mono text-sm text-foreground">Email: <a href="mailto:nikamdinesh362@gmail.com" className="text-foreground font-semibold underline underline-offset-4 hover:text-primary transition-colors">nikamdinesh362@gmail.com</a></p>
                                 <p className="font-mono text-sm text-muted-foreground mt-2">Dinesh Nikam</p>
                             </div>
                         </div>
@@ -145,6 +147,6 @@ export default function PrivacyPolicyPage() {
                     </Link>
                 </div>
             </div>
-        </div>
+        </main>
     );
 }

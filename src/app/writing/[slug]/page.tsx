@@ -17,9 +17,19 @@ import { CURATED_FALLBACK_ARTICLES } from '@/lib/blog-generator';
 // Ensure the route is dynamic or statically generated later if configured.
 export const dynamic = 'force-dynamic';
 
+interface ArticleMetaRecord {
+    title: string;
+    excerpt: string;
+    publishedAt: Date | string | null;
+    createdAt?: Date | string | null;
+    updatedAt?: Date | string | null;
+    category: string;
+    slug: string;
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
-    let article: any = null;
+    let article: ArticleMetaRecord | null = null;
     try {
         article = await prisma.article.findUnique({
             where: { slug },
@@ -54,8 +64,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         return { title: 'Not Found | Dinesh Nikam' };
     }
 
-    const publishDate = article.publishedAt ?? article.createdAt ?? new Date();
-    const modifiedDate = article.updatedAt ?? publishDate;
+    const rawPublish = article.publishedAt ?? article.createdAt;
+    const publishDate = rawPublish ? new Date(rawPublish) : new Date();
+    const modifiedDate = article.updatedAt ? new Date(article.updatedAt) : publishDate;
 
     return {
         title: article.title,
@@ -80,10 +91,25 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
 }
 
+interface ArticleRecord {
+    id: string;
+    title: string;
+    slug: string;
+    excerpt: string;
+    content: string;
+    category: string;
+    readingTime: number;
+    status: string;
+    publishedAt: Date | string | null;
+    createdAt?: Date | string | null;
+    updatedAt?: Date | string | null;
+    views: number;
+}
+
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
 
-    let article: any = null;
+    let article: ArticleRecord | null = null;
     try {
         article = await prisma.article.findUnique({
             where: { slug },
@@ -115,8 +141,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     }
 
     // Build JSON-LD schemas
-    const publishDate = article.publishedAt ?? article.createdAt ?? new Date();
-    const modifiedDate = article.updatedAt ?? publishDate;
+    const rawPublish = article.publishedAt ?? article.createdAt;
+    const publishDate = rawPublish ? new Date(rawPublish) : new Date();
+    const modifiedDate = article.updatedAt ? new Date(article.updatedAt) : publishDate;
     const articleSchema = buildArticleSchema({
         title: article.title,
         excerpt: article.excerpt,
@@ -132,7 +159,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     ]);
 
     return (
-        <div className="min-h-screen bg-background text-foreground pt-24 pb-32">
+        <main id="main-content" className="min-h-screen bg-background text-foreground pt-24 pb-32">
             <ReadingProgress />
             <ViewTracker slug={slug} />
             {/* Structured Data: BlogPosting + Breadcrumb schemas */}
@@ -163,7 +190,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                         <div className="flex items-center gap-1.5">
                             <CalendarDays className="w-3.5 h-3.5" />
                             <span>
-                                {new Date(article.publishedAt || article.createdAt).toLocaleDateString('en-US', {
+                                {new Date(article.publishedAt ?? article.createdAt ?? Date.now()).toLocaleDateString('en-US', {
                                     month: 'long',
                                     day: 'numeric',
                                     year: 'numeric'
@@ -217,6 +244,6 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                     <Link href="/writing" className="hover:text-foreground transition-colors">More Articles →</Link>
                 </div>
             </div>
-        </div>
+        </main>
     );
 }

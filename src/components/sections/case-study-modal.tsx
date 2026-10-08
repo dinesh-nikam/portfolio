@@ -1,38 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ArrowUpRight, CheckCircle2, Code2, Layers, Cpu } from "lucide-react";
+import { X, ArrowUpRight, Cpu } from "lucide-react";
 import Image from "next/image";
-
-export interface CaseStudyData {
-    id: string;
-    num: string;
-    title: string;
-    tagline: string;
-    role: string;
-    year: string;
-    client: string;
-    image: string;
-    tech: string[];
-    liveUrl?: string;
-    overview: string;
-    problem: string;
-    approach: string;
-    design: {
-        description: string;
-        highlights: string[];
-    };
-    engineering: {
-        architecture: string;
-        codeSnippet?: string;
-        decisions: string[];
-    };
-    result: {
-        metric: string;
-        summary: string;
-    };
-}
+import type { CaseStudyData } from "@/lib/case-studies";
 
 interface CaseStudyModalProps {
     project: CaseStudyData | null;
@@ -40,16 +12,44 @@ interface CaseStudyModalProps {
 }
 
 export function CaseStudyModal({ project, onClose }: CaseStudyModalProps) {
+    const closeButtonRef = useRef<HTMLButtonElement>(null);
+    const panelRef = useRef<HTMLElement>(null);
+    const previouslyFocused = useRef<HTMLElement | null>(null);
+
     useEffect(() => {
         if (!project) return;
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === "Escape") onClose();
+
+            // Minimal focus trap: keep Tab cycling inside the drawer.
+            if (e.key === "Tab" && panelRef.current) {
+                const focusables = panelRef.current.querySelectorAll<HTMLElement>(
+                    'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+                );
+                if (focusables.length === 0) return;
+                const first = focusables[0];
+                const last = focusables[focusables.length - 1];
+                const active = document.activeElement;
+                if (e.shiftKey && active === first) {
+                    e.preventDefault();
+                    last.focus();
+                } else if (!e.shiftKey && active === last) {
+                    e.preventDefault();
+                    first.focus();
+                }
+            }
         };
+
+        previouslyFocused.current = document.activeElement as HTMLElement | null;
         document.body.style.overflow = "hidden";
         window.addEventListener("keydown", handleKeyDown);
+        // Move focus into the drawer once it exists.
+        const focusTimer = window.setTimeout(() => closeButtonRef.current?.focus(), 50);
         return () => {
-            document.body.style.overflow = "unset";
+            document.body.style.overflow = "";
             window.removeEventListener("keydown", handleKeyDown);
+            window.clearTimeout(focusTimer);
+            previouslyFocused.current?.focus?.();
         };
     }, [project, onClose]);
 
@@ -69,6 +69,10 @@ export function CaseStudyModal({ project, onClose }: CaseStudyModalProps) {
 
                     {/* Cinematic Drawer Panel */}
                     <motion.aside
+                        ref={panelRef}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label={`${project.title} case study`}
                         initial={{ x: "100%" }}
                         animate={{ x: 0 }}
                         exit={{ x: "100%" }}
@@ -84,6 +88,7 @@ export function CaseStudyModal({ project, onClose }: CaseStudyModalProps) {
                             </div>
 
                             <button
+                                ref={closeButtonRef}
                                 onClick={onClose}
                                 className="group flex h-9 w-9 items-center justify-center rounded-sm border border-border text-foreground transition-colors hover:border-primary hover:text-primary"
                                 aria-label="Close case study"
@@ -215,8 +220,9 @@ export function CaseStudyModal({ project, onClose }: CaseStudyModalProps) {
                                             rel="noopener noreferrer"
                                             className="inline-flex shrink-0 items-center gap-2 rounded-sm border border-primary bg-primary px-5 py-2.5 font-mono text-xs uppercase tracking-widest text-white transition-opacity hover:opacity-90"
                                         >
-                                            EXPLORE LIVE
+                                            VISIT LIVE SITE
                                             <ArrowUpRight className="h-3.5 w-3.5" />
+                                            <span className="sr-only">(opens in a new tab)</span>
                                         </a>
                                     )}
                                 </div>

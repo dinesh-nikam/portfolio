@@ -23,7 +23,7 @@ export async function PATCH(req: Request) {
     try {
         const { id, isRead, isStarred, isArchived } = await req.json();
 
-        const data: any = {};
+        const data: Record<string, boolean> = {};
         if (typeof isRead === "boolean") data.isRead = isRead;
         if (typeof isStarred === "boolean") data.isStarred = isStarred;
         if (typeof isArchived === "boolean") data.isArchived = isArchived;
